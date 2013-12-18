@@ -7,6 +7,7 @@ OVSDIR=openvswitch-${OVSVER}
 OVSSRC=openvswitch-${OVSVER}.tar.gz
 
 ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
+GITVERSION:=$(shell cat .git/refs/heads/master)
 
 DEBS=								\
 	openvswitch-common_${OVSVER}-${PKGRELEASE}_${ARCH}.deb	\
@@ -20,6 +21,9 @@ ${DEBS}: ${OVSSRC}
 	rm -rf ${OVSDIR}
 	tar xf ${OVSSRC}
 	cd  ${OVSDIR}; patch -p1 <../remove-unneeded-from-control.patch
+	echo "git clone git://git.proxmox.com/git/openvswitch.git\\ngit checkout ${GITVERSION}" > ${OVSDIR}/debian/SOURCE
+	echo "debian/SOURCE" >> ${OVSDIR}/debian/openvswitch-common.docs
+	echo "debian/SOURCE" >> ${OVSDIR}/debian/openvswitch-switch.docs
 	cd ${OVSDIR}; dpkg-buildpackage -b -rfakeroot -us -uc	
 
 .PHONY: download
