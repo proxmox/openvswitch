@@ -1,5 +1,7 @@
---- new/debian/control.org	2013-12-18 07:35:33.078896314 +0100
-+++ new/debian/control	2013-12-18 07:49:35.738844600 +0100
+Index: new/debian/control
+===================================================================
+--- new.orig/debian/control	2013-12-18 07:59:19.000000000 +0100
++++ new/debian/control	2013-12-18 09:13:33.433526213 +0100
 @@ -6,8 +6,7 @@
  Build-Depends:
   debhelper (>= 8), autoconf (>= 2.64), automake (>= 1.10) | automake1.10, 
