@@ -1,0 +1,61 @@
+--- new/debian/control.org	2013-12-18 07:35:33.078896314 +0100
++++ new/debian/control	2013-12-18 07:49:35.738844600 +0100
+@@ -6,8 +6,7 @@
+ Build-Depends:
+  debhelper (>= 8), autoconf (>= 2.64), automake (>= 1.10) | automake1.10, 
+  libssl-dev, bzip2, openssl, graphviz,
+- python-all (>= 2.6.6-3~), procps, python-qt4,
+- python-zopeinterface, python-twisted-conch
++ python-all (>= 2.6.6-3~), procps
+ Standards-Version: 3.9.3
+ Homepage: http://openvswitch.org/
+ 
+@@ -29,22 +28,6 @@
+  from it using module-assistant or make-kpkg.  README.Debian in this
+  package provides further instructions.
+ 
+-Package: openvswitch-datapath-dkms
+-Architecture: all
+-Depends: dkms (>= 1.95), make, libc6-dev, ${misc:Depends}, ${python:Depends}
+-Description: Open vSwitch datapath module source - DKMS version
+- Open vSwitch is a production quality, multilayer, software-based,
+- Ethernet virtual switch. It is designed to enable massive network
+- automation through programmatic extension, while still supporting
+- standard management interfaces and protocols (e.g. NetFlow, IPFIX,
+- sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In addition, it is designed
+- to support distribution across multiple physical servers similar to
+- VMware's vNetwork distributed vswitch or Cisco's Nexus 1000V.
+- .
+- This package provides the Open vSwitch datapath module source code
+- that is needed by openvswitch-switch.  DKMS can built the kernel
+- module from it.
+-
+ Package: openvswitch-common
+ Architecture: linux-any
+ Depends:
+@@ -152,25 +135,6 @@
+  .
+  This package contains the full Python bindings for Open vSwitch database.
+ 
+-Package: ovsdbmonitor
+-Architecture: all
+-Section: utils
+-Depends: ${python:Depends}, python-openvswitch, ${misc:Depends}
+-Description: Open vSwitch graphical monitoring tool
+- Open vSwitch is a production quality, multilayer, software-based,
+- Ethernet virtual switch. It is designed to enable massive network
+- automation through programmatic extension, while still supporting
+- standard management interfaces and protocols (e.g. NetFlow, IPFIX,
+- sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In addition, it is designed
+- to support distribution across multiple physical servers similar to
+- VMware's vNetwork distributed vswitch or Cisco's Nexus 1000V.
+- .
+- This package is a GUI tool for monitoring and troubleshooting local
+- or remote Open vSwitch installations.  It presents GUI tables that
+- graphically represent an Open vSwitch kernel flow table (similar to
+- "ovs-dpctl dump-flows") and Open vSwitch database contents (similar
+- to "ovs-vsctl list <table>").
+-
+ Package: openvswitch-test
+ Architecture: all
+ Depends: ${misc:Depends}, ${python:Depends}, python-twisted-web, python (>= 2.7) | python-argparse
