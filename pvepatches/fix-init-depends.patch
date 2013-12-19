@@ -1,0 +1,35 @@
+Index: new/debian/openvswitch-switch.init
+===================================================================
+--- new.orig/debian/openvswitch-switch.init	2013-12-18 09:16:04.138935573 +0100
++++ new/debian/openvswitch-switch.init	2013-12-19 06:23:22.424300483 +0100
+@@ -16,10 +16,12 @@
+ #
+ ### BEGIN INIT INFO
+ # Provides:          openvswitch-switch
+-# Required-Start:    $network $named $remote_fs $syslog
+-# Required-Stop:     $remote_fs
+-# Default-Start:     2 3 4 5
+-# Default-Stop:      0 1 6
++# Required-Start:    pvenetcommit
++# Required-Stop:     $local_fs
++# X-Start-Before:    networking
++# X-Stop-After:      networking
++# Default-Start:     S
++# Default-Stop:      0 6
+ # Short-Description: Open vSwitch switch
+ # Description:       openvswitch-switch provides the userspace components and utilities for
+ #                    the Open vSwitch kernel-based switch.
+Index: new/debian/rules
+===================================================================
+--- new.orig/debian/rules	2013-12-18 07:59:19.000000000 +0100
++++ new/debian/rules	2013-12-19 10:23:47.363457352 +0100
+@@ -131,7 +131,8 @@
+ 	dh_installexamples
+ 	dh_installdebconf
+ 	dh_installlogrotate
+-	dh_installinit -R
++	dh_installinit -p "openvswitch-switch" -R -- start 20 S . stop 80 0 6 .
++	dh_installinit --remaining-packages -R
+ 	dh_installcron
+ 	dh_installman --language=C
+ 	dh_link
