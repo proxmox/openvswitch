@@ -1,0 +1,9 @@
+openvswitch (2.0.90-2) unstable; urgency=low
+
+  * backport for Proxmox VE
+  
+  * start vswitchd early in runlevel S, so that ovs network interfaces
+    are available at boot time.
+  
+ -- Proxmox Support Team <support@proxmox.com>  Sat, 21 Dec 2013 06:43:12 +0100
+

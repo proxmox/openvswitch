@@ -1,7 +1,8 @@
 RELEASE=3.1
 
+# also add entry in changelog.Debian
 OVSVER=2.0.90
-PKGRELEASE=1
+PKGRELEASE=2
 
 OVSDIR=openvswitch-${OVSVER}
 OVSSRC=openvswitch-${OVSVER}.tar.gz
@@ -22,6 +23,8 @@ ${DEBS}: ${OVSSRC}
 	tar xf ${OVSSRC}
 	cd  ${OVSDIR}; ln -s ../pvepatches patches
 	cd  ${OVSDIR};	quilt push -a
+	mv ${OVSDIR}/debian/changelog ${OVSDIR}/debian/changelog.org
+	cat changelog.Debian ${OVSDIR}/debian/changelog.org> ${OVSDIR}/debian/changelog
 	echo "git clone git://git.proxmox.com/git/openvswitch.git\\ngit checkout ${GITVERSION}" > ${OVSDIR}/debian/SOURCE
 	echo "debian/SOURCE" >> ${OVSDIR}/debian/openvswitch-common.docs
 	echo "debian/SOURCE" >> ${OVSDIR}/debian/openvswitch-switch.docs
