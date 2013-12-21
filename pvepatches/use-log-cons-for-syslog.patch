@@ -1,3 +1,10 @@
+use LOG_CONS for syslog
+
+We start vswitch deamon early in runlevel S when syslog service is not
+available. So we log to console if syslog fails.
+
+--
+
 Index: new/lib/vlog.c
 ===================================================================
 --- new.orig/lib/vlog.c	2013-12-18 07:59:19.000000000 +0100
