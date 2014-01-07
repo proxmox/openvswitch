@@ -1,7 +1,7 @@
 Index: new/debian/openvswitch-switch.init
 ===================================================================
 --- new.orig/debian/openvswitch-switch.init	2013-12-18 09:16:04.138935573 +0100
-+++ new/debian/openvswitch-switch.init	2013-12-19 06:23:22.424300483 +0100
++++ new/debian/openvswitch-switch.init	2014-01-07 09:45:58.438684815 +0100
 @@ -16,10 +16,12 @@
  #
  ### BEGIN INIT INFO
@@ -19,6 +19,30 @@ Index: new/debian/openvswitch-switch.init
  # Short-Description: Open vSwitch switch
  # Description:       openvswitch-switch provides the userspace components and utilities for
  #                    the Open vSwitch kernel-based switch.
+@@ -38,6 +40,13 @@
+     [ -n "${bridges}" ] && $1 --allow=ovs ${bridges}
+ }
+ 
++sendsigs_omit() {
++	OMITDIR=/run/sendsigs.omit.d
++	mkdir -p $OMITDIR
++	ln -sf /var/run/openvswitch/ovs-vswitchd.pid $OMITDIR/ovs-vswitchd.pid
++	ln -sf /var/run/openvswitch/ovsdb-server.pid $OMITDIR/ovsdb-server.pid
++}
++
+ load_kmod () {
+     ovs_ctl load-kmod || exit $?
+ }
+@@ -61,6 +70,9 @@
+ 	    exit 0
+ 	fi
+     fi
++
++    sendsigs_omit
++
+     set ovs_ctl ${1-start} --system-id=random
+     if test X"$FORCE_COREFILES" != X; then
+ 	set "$@" --force-corefiles="$FORCE_COREFILES"
 Index: new/debian/rules
 ===================================================================
 --- new.orig/debian/rules	2013-12-18 07:59:19.000000000 +0100
