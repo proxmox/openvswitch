@@ -1,7 +1,7 @@
 Index: new/debian/openvswitch-switch.init
 ===================================================================
---- new.orig/debian/openvswitch-switch.init	2013-12-18 09:16:04.138935573 +0100
-+++ new/debian/openvswitch-switch.init	2014-01-07 09:45:58.438684815 +0100
+--- new.orig/debian/openvswitch-switch.init	2014-06-11 10:31:50.000000000 +0200
++++ new/debian/openvswitch-switch.init	2014-06-11 10:32:50.000000000 +0200
 @@ -16,10 +16,12 @@
  #
  ### BEGIN INIT INFO
@@ -10,7 +10,7 @@ Index: new/debian/openvswitch-switch.init
 -# Required-Stop:     $remote_fs
 -# Default-Start:     2 3 4 5
 -# Default-Stop:      0 1 6
-+# Required-Start:    pvenetcommit
++# Required-Start:    pvenetcommit $local_fs
 +# Required-Stop:     $local_fs
 +# X-Start-Before:    networking
 +# X-Stop-After:      networking
@@ -46,7 +46,7 @@ Index: new/debian/openvswitch-switch.init
 Index: new/debian/rules
 ===================================================================
 --- new.orig/debian/rules	2013-12-18 07:59:19.000000000 +0100
-+++ new/debian/rules	2013-12-19 10:23:47.363457352 +0100
++++ new/debian/rules	2014-06-11 10:32:30.000000000 +0200
 @@ -131,7 +131,8 @@
  	dh_installexamples
  	dh_installdebconf
