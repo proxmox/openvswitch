@@ -7,14 +7,14 @@ available. So we log to console if syslog fails.
 
 Index: new/lib/vlog.c
 ===================================================================
---- new.orig/lib/vlog.c	2013-12-18 07:59:19.000000000 +0100
-+++ new/lib/vlog.c	2013-12-21 06:12:18.760775259 +0100
-@@ -604,7 +604,7 @@
-      * private copy to suppress memory leak warnings in case openlog() does
-      * make its own copy.) */
-     program_name_copy = program_name ? xstrdup(program_name) : NULL;
--    openlog(program_name_copy, LOG_NDELAY, LOG_DAEMON);
-+    openlog(program_name_copy, LOG_NDELAY|LOG_CONS, LOG_DAEMON);
+--- new.orig/lib/vlog.c	2014-08-14 22:28:37.000000000 +0200
++++ new/lib/vlog.c	2014-09-18 08:12:27.000000000 +0200
+@@ -613,7 +613,7 @@
+          * a pointer to the private copy to suppress memory leak warnings in
+          * case openlog() does make its own copy.) */
+         program_name_copy = program_name ? xstrdup(program_name) : NULL;
+-        openlog(program_name_copy, LOG_NDELAY, LOG_DAEMON);
++        openlog(program_name_copy, LOG_NDELAY|LOG_CONS, LOG_DAEMON);
+         ovsthread_once_done(&once);
  
-     now = time_wall_msec();
-     if (now < 0) {
+         /* Now do anything that we want to happen only once but doesn't have to

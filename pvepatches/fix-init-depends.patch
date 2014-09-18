@@ -1,7 +1,7 @@
 Index: new/debian/openvswitch-switch.init
 ===================================================================
---- new.orig/debian/openvswitch-switch.init	2014-06-11 10:31:50.000000000 +0200
-+++ new/debian/openvswitch-switch.init	2014-06-11 10:32:50.000000000 +0200
+--- new.orig/debian/openvswitch-switch.init	2014-09-18 08:09:17.000000000 +0200
++++ new/debian/openvswitch-switch.init	2014-09-18 08:09:23.000000000 +0200
 @@ -16,10 +16,12 @@
  #
  ### BEGIN INIT INFO
@@ -45,9 +45,9 @@ Index: new/debian/openvswitch-switch.init
  	set "$@" --force-corefiles="$FORCE_COREFILES"
 Index: new/debian/rules
 ===================================================================
---- new.orig/debian/rules	2013-12-18 07:59:19.000000000 +0100
-+++ new/debian/rules	2014-06-11 10:32:30.000000000 +0200
-@@ -131,7 +131,8 @@
+--- new.orig/debian/rules	2014-08-14 22:33:18.000000000 +0200
++++ new/debian/rules	2014-09-18 08:09:23.000000000 +0200
+@@ -130,7 +130,8 @@
  	dh_installexamples
  	dh_installdebconf
  	dh_installlogrotate

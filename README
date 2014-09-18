@@ -1,5 +1,3 @@
 We compile our own package, because current debian packages are too old.
 
-Sources are copied from:
-
-git clone git://git.openvswitch.org/openvswitch
+Sources are copied from: http://openvswitch.org/releases/

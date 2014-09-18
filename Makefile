@@ -1,8 +1,8 @@
-RELEASE=3.2
+RELEASE=3.3
 
 # also add entry in changelog.Debian
-OVSVER=2.0.90
-PKGRELEASE=4
+OVSVER=2.3.0
+PKGRELEASE=1
 
 OVSDIR=openvswitch-${OVSVER}
 OVSSRC=openvswitch-${OVSVER}.tar.gz
@@ -32,11 +32,12 @@ ${DEBS}: ${OVSSRC}
 
 .PHONY: download
 ${OVSSRC} download:
-	rm -rf ${OVSDIR} ${OVSSRC}
-	git clone git://git.openvswitch.org/openvswitch ${OVSDIR}
-	rm -rf ${OVSDIR}/.git
-	tar czf ${OVSSRC}.tmp ${OVSDIR}
-	mv ${OVSSRC}.tmp ${OVSSRC}
+	wget http://openvswitch.org/releases/${OVSSRC}
+	#rm -rf ${OVSDIR} ${OVSSRC}
+	#git clone git://git.openvswitch.org/openvswitch ${OVSDIR}
+	#rm -rf ${OVSDIR}/.git
+	#tar czf ${OVSSRC}.tmp ${OVSDIR}
+	#mv ${OVSSRC}.tmp ${OVSSRC}
 
 .PHONY: upload
 upload: ${DEBS}
