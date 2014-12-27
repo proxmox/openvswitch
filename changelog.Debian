@@ -1,3 +1,9 @@
+openvswitch (2.3.1-1) unstable; urgency=low
+
+  * update to 2.3.1
+
+ -- Proxmox Support Team <support@proxmox.com>  Sat, 27 Dec 2014 10:58:59 +0100
+
 openvswitch (2.3.0-1) unstable; urgency=low
 
   * update to latest stable upstream version 2.3.0
