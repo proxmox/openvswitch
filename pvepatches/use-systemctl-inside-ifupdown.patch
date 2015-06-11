@@ -1,0 +1,18 @@
+Index: new/debian/ifupdown.sh
+===================================================================
+--- new.orig/debian/ifupdown.sh
++++ new/debian/ifupdown.sh
+@@ -29,8 +29,11 @@ if (ovs_vsctl --version) > /dev/null 2>&
+     exit 0
+ fi
+ 
+-if /etc/init.d/openvswitch-switch status > /dev/null 2>&1; then :; else
+-    /etc/init.d/openvswitch-switch start
++SERVICE_UNIT=/lib/systemd/system/openvswitch-nonetwork.service
++if [ -f $SERVICE_UNIT ] && [ -x /bin/systemctl ]; then
++	if ! systemctl --quiet is-active openvswitch-nonetwork.service; then
++		systemctl start openvswitch-nonetwork.service
++	fi
+ fi
+ 
+ if [ "${MODE}" = "start" ]; then

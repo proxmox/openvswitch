@@ -1,4 +1,6 @@
 remove-unneeded-from-control.patch
 fix-init-script-patch
 fix-init-depends.patch
-use-log-cons-for-syslog.patch
+#use-log-cons-for-syslog.patch
+install-systemd-services.patch
+use-systemctl-inside-ifupdown.patch

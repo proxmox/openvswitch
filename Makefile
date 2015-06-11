@@ -1,8 +1,8 @@
-RELEASE=3.3
+RELEASE=4.0
 
 # also add entry in changelog.Debian
 OVSVER=2.3.1
-PKGRELEASE=1
+PKGRELEASE=2
 
 OVSDIR=openvswitch-${OVSVER}
 OVSSRC=openvswitch-${OVSVER}.tar.gz
