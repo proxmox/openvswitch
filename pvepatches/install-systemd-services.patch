@@ -2,12 +2,9 @@ Index: new/debian/openvswitch-switch.openvswitch-nonetwork.service
 ===================================================================
 --- /dev/null
 +++ new/debian/openvswitch-switch.openvswitch-nonetwork.service
-@@ -0,0 +1,13 @@
+@@ -0,0 +1,10 @@
 +[Unit]
 +Description=Open vSwitch Internal Unit
-+After=syslog.target
-+PartOf=openvswitch.service
-+Wants=openvswitch.service
 +
 +[Service]
 +Type=oneshot

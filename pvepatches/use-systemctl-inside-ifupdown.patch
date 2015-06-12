@@ -10,9 +10,9 @@ Index: new/debian/ifupdown.sh
 -    /etc/init.d/openvswitch-switch start
 +SERVICE_UNIT=/lib/systemd/system/openvswitch-nonetwork.service
 +if [ -f $SERVICE_UNIT ] && [ -x /bin/systemctl ]; then
-+	if ! systemctl --quiet is-active openvswitch-nonetwork.service; then
-+		systemctl start openvswitch-nonetwork.service
-+	fi
++    if ! systemctl --quiet is-active openvswitch-nonetwork.service; then
++	systemctl --ignore-dependencies start openvswitch-nonetwork.service
++    fi
  fi
  
  if [ "${MODE}" = "start" ]; then
