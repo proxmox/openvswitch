@@ -2,16 +2,18 @@ Index: new/debian/openvswitch-switch.openvswitch-nonetwork.service
 ===================================================================
 --- /dev/null
 +++ new/debian/openvswitch-switch.openvswitch-nonetwork.service
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,12 @@
 +[Unit]
 +Description=Open vSwitch Internal Unit
++
++DefaultDependencies=no
++After=local-fs.target systemd-tmpfiles-setup.service
 +
 +[Service]
 +Type=oneshot
 +RemainAfterExit=yes
 +EnvironmentFile=-/etc/sysconfig/openvswitch
-+ExecStart=/usr/share/openvswitch/scripts/ovs-ctl start \
-+          --system-id=random $OPTIONS
++ExecStart=/usr/share/openvswitch/scripts/ovs-ctl start --system-id=random $OPTIONS
 +ExecStop=/usr/share/openvswitch/scripts/ovs-ctl stop
 Index: new/debian/openvswitch-switch.openvswitch.service
 ===================================================================
