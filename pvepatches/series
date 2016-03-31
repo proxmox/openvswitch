@@ -2,3 +2,4 @@ remove-unneeded-from-control.patch
 fix-init-script-patch
 fix-init-depends.patch
 use-log-cons-for-syslog.patch
+CVE-2016-2074.patch
