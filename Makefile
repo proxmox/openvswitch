@@ -1,4 +1,4 @@
-RELEASE=4.0
+RELEASE=4.1
 
 # also add entry in changelog.Debian
 OVSVER=2.3.2
