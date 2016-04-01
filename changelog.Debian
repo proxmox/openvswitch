@@ -1,3 +1,9 @@
+openvswitch (2.3.2-2) unstable; urgency=low
+
+  * Fix CVE-2016-2074
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 01 Apr 2016 08:23:09 +0200
+
 openvswitch (2.3.2-1) unstable; urgency=low
 
   * update to 2.3.2
