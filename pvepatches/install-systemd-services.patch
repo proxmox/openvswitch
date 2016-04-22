@@ -7,7 +7,7 @@ Index: new/debian/openvswitch-switch.openvswitch-nonetwork.service
 +Description=Open vSwitch Internal Unit
 +
 +DefaultDependencies=no
-+After=local-fs.target systemd-tmpfiles-setup.service
++After=local-fs.target systemd-tmpfiles-setup.service pvenetcommit.service
 +
 +[Service]
 +Type=oneshot
@@ -35,49 +35,40 @@ Index: new/debian/openvswitch-switch.openvswitch.service
 +WantedBy=multi-user.target
 Index: new/debian/rules
 ===================================================================
---- new.orig/debian/rules
-+++ new/debian/rules
-@@ -40,6 +40,7 @@ configure-stamp:
- 	dh_testdir
- 	test -e configure || ./boot.sh
- 	test -d _debian || mkdir _debian
-+	rm debian/openvswitch-switch.init
- 	echo $(DEB_BUILD_OPTIONS)
- 	echo $$CC
- 	cd _debian && ( \
-@@ -130,8 +131,10 @@ binary-common:
- 	dh_installexamples
- 	dh_installdebconf
- 	dh_installlogrotate
--	dh_installinit -p "openvswitch-switch" -R -- start 20 S . stop 80 0 6 .
--	dh_installinit --remaining-packages -R
+--- a/debian/rules
++++ b/debian/rules
+@@ -82,8 +82,10 @@ override_dh_install:
+                debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/xenserver/LICENSE
+ 
+ override_dh_installinit:
+-        dh_installinit -p "openvswitch-switch" -R -- start 20 S . stop 80 0 6 .
+-        dh_installinit --remaining-packages -R
 +	dh_systemd_enable -p "openvswitch-switch" --name openvswitch
 +	dh_systemd_enable -p "openvswitch-switch" --name openvswitch-nonetwork
 +	dh_installinit
 +	dh_systemd_start -p "openvswitch-switch"  --name openvswitch-nonetwork --restart-after-upgrade
- 	dh_installcron
- 	dh_installman --language=C
- 	dh_link
+ 
+ override_dh_strip:
+        dh_strip --dbg-package=openvswitch-dbg
 Index: new/debian/control
 ===================================================================
---- new.orig/debian/control
-+++ new/debian/control
-@@ -6,7 +6,8 @@ Uploaders: Ben Pfaff <pfaffben@debian.or
- Build-Depends:
-  debhelper (>= 8), autoconf (>= 2.64), automake (>= 1.10) | automake1.10, 
-  libssl-dev, bzip2, openssl, graphviz,
-- python-all (>= 2.6.6-3~), procps, libtool
-+ python-all (>= 2.6.6-3~), procps, libtool,
-+ dh-systemd (>= 1.4)
+--- a/debian/control
++++ b/debian/control
+@@ -14,6 +14,7 @@ Build-Depends: graphviz,
+                openssl,
+                procps,
+                python-all (>= 2.7),
++               dh-systemd (>= 1.4)
  Standards-Version: 3.9.3
  Homepage: http://openvswitch.org/
  
-@@ -48,7 +49,7 @@ Description: Open vSwitch common compone
- Package: openvswitch-switch
- Architecture: linux-any
- Suggests: openvswitch-datapath-module
--Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, openvswitch-common (= ${binary:Version}), kmod | module-init-tools, procps, uuid-runtime, netbase, python-argparse
-+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, openvswitch-common (= ${binary:Version}), kmod | module-init-tools, procps, uuid-runtime, netbase, python-argparse, systemd
+@@ -66,7 +67,8 @@ Depends: kmod | module-init-tools,
+          uuid-runtime,
+          ${misc:Depends},
+          ${python:Depends},
+-         ${shlibs:Depends}
++         ${shlibs:Depends},
++         systemd
  Description: Open vSwitch switch implementations
   Open vSwitch is a production quality, multilayer, software-based,
   Ethernet virtual switch. It is designed to enable massive network

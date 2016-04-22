@@ -10,7 +10,7 @@ Index: new/debian/openvswitch-switch.init
 -# Required-Stop:     $remote_fs
 -# Default-Start:     2 3 4 5
 -# Default-Stop:      0 1 6
-+# Required-Start:    pvenetcommit $local_fs
++# Required-Start:    $local_fs
 +# Required-Stop:     $local_fs
 +# X-Start-Before:    networking
 +# X-Stop-After:      networking
@@ -45,15 +45,15 @@ Index: new/debian/openvswitch-switch.init
  	set "$@" --force-corefiles="$FORCE_COREFILES"
 Index: new/debian/rules
 ===================================================================
---- new.orig/debian/rules	2014-08-14 22:33:18.000000000 +0200
-+++ new/debian/rules	2014-09-18 08:09:23.000000000 +0200
-@@ -130,7 +130,8 @@
- 	dh_installexamples
- 	dh_installdebconf
- 	dh_installlogrotate
+--- a/debian/rules
++++ b/debian/rules
+@@ -82,7 +82,8 @@ override_dh_install:
+ 		debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/xenserver/LICENSE
+ 
+ override_dh_installinit:
 -	dh_installinit -R
-+	dh_installinit -p "openvswitch-switch" -R -- start 20 S . stop 80 0 6 .
-+	dh_installinit --remaining-packages -R
- 	dh_installcron
- 	dh_installman --language=C
- 	dh_link
++        dh_installinit -p "openvswitch-switch" -R -- start 20 S . stop 80 0 6 .
++        dh_installinit --remaining-packages -R
+ 
+ override_dh_strip:
+ 	dh_strip --dbg-package=openvswitch-dbg

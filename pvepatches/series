@@ -3,4 +3,3 @@ fix-init-script-patch
 fix-init-depends.patch
 install-systemd-services.patch
 use-systemctl-inside-ifupdown.patch
-CVE-2016-2074.patch

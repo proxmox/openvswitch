@@ -1,24 +1,24 @@
-Index: new/debian/control
-===================================================================
---- new.orig/debian/control	2014-08-14 22:28:37.000000000 +0200
-+++ new/debian/control	2014-09-18 08:17:46.000000000 +0200
-@@ -6,8 +6,7 @@
- Build-Depends:
-  debhelper (>= 8), autoconf (>= 2.64), automake (>= 1.10) | automake1.10, 
-  libssl-dev, bzip2, openssl, graphviz,
-- python-all (>= 2.6.6-3~), procps, python-qt4,
-- python-zopeinterface, python-twisted-conch, libtool
-+ python-all (>= 2.6.6-3~), procps, libtool
+diff --git a/debian/control b/debian/control
+index 49d6f5f..71011e6 100644
+--- a/debian/control
++++ b/debian/control
+@@ -14,9 +14,6 @@ Build-Depends: graphviz,
+                openssl,
+                procps,
+                python-all (>= 2.7),
+-               python-qt4,
+-               python-twisted-conch,
+-               python-zopeinterface
  Standards-Version: 3.9.3
  Homepage: http://openvswitch.org/
  
-@@ -29,22 +28,6 @@
+@@ -38,22 +35,6 @@ Description: Open vSwitch datapath module source - module-assistant version
   from it using module-assistant or make-kpkg.  README.Debian in this
   package provides further instructions.
  
 -Package: openvswitch-datapath-dkms
 -Architecture: all
--Depends: dkms (>= 1.95), make, libc6-dev, ${misc:Depends}, ${python:Depends}
+-Depends: dkms (>= 1.95), libc6-dev, make, ${misc:Depends}, ${python:Depends}
 -Description: Open vSwitch datapath module source - DKMS version
 - Open vSwitch is a production quality, multilayer, software-based,
 - Ethernet virtual switch. It is designed to enable massive network
@@ -34,4 +34,4 @@ Index: new/debian/control
 -
  Package: openvswitch-common
  Architecture: linux-any
- Depends:
+ Depends: openssl,
