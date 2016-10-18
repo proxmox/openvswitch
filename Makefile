@@ -32,12 +32,10 @@ ${DEBS}: ${OVSSRC}
 
 .PHONY: download
 ${OVSSRC} download:
-	wget http://openvswitch.org/releases/${OVSSRC}
-	#rm -rf ${OVSDIR} ${OVSSRC}
-	#git clone git://git.openvswitch.org/openvswitch ${OVSDIR}
-	#rm -rf ${OVSDIR}/.git
-	#tar czf ${OVSSRC}.tmp ${OVSDIR}
-	#mv ${OVSSRC}.tmp ${OVSSRC}
+	rm -rf ${OVSDIR} ${OVSSRC}
+	git clone https://github.com/openvswitch/ovs.git -b v${OVSVER} ${OVSDIR}.git
+	cd ${OVSDIR}.git; git archive --format=tar.gz -o ../${OVSSRC}.tmp v${OVSVER} --prefix=${OVSDIR}/
+	mv ${OVSSRC}.tmp ${OVSSRC}
 
 .PHONY: upload
 upload: ${DEBS}
@@ -54,7 +52,7 @@ distclean: clean
 
 .PHONY: clean
 clean:
-	rm -rf *~ ${OVSSRC}.tmp ${OVSDIR} *.deb *.changes
+	rm -rf *~ ${OVSSRC}.tmp ${OVSDIR} *.deb *.changes ${OVSDIR}.git
 
 .PHONY: dinstall
 dinstall: ${DEBS}
