@@ -1,18 +1,17 @@
-diff --git a/debian/control b/debian/control
-index 49d6f5f..71011e6 100644
---- a/debian/control
-+++ b/debian/control
-@@ -14,9 +14,6 @@ Build-Depends: graphviz,
+Index: devel/debian/control
+===================================================================
+--- devel.orig/debian/control
++++ devel/debian/control
+@@ -14,8 +14,6 @@ Build-Depends: graphviz,
                 openssl,
                 procps,
                 python-all (>= 2.7),
--               python-qt4,
 -               python-twisted-conch,
--               python-zopeinterface
+-               python-zopeinterface,
+                python-six
  Standards-Version: 3.9.3
  Homepage: http://openvswitch.org/
- 
-@@ -38,22 +35,6 @@ Description: Open vSwitch datapath module source - module-assistant version
+@@ -38,22 +36,6 @@ Description: Open vSwitch datapath modul
   from it using module-assistant or make-kpkg.  README.Debian in this
   package provides further instructions.
  

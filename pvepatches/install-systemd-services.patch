@@ -1,7 +1,7 @@
-Index: new/debian/openvswitch-switch.openvswitch-nonetwork.service
+Index: devel/debian/openvswitch-switch.openvswitch-nonetwork.service
 ===================================================================
 --- /dev/null
-+++ new/debian/openvswitch-switch.openvswitch-nonetwork.service
++++ devel/debian/openvswitch-switch.openvswitch-nonetwork.service
 @@ -0,0 +1,12 @@
 +[Unit]
 +Description=Open vSwitch Internal Unit
@@ -15,10 +15,10 @@ Index: new/debian/openvswitch-switch.openvswitch-nonetwork.service
 +EnvironmentFile=-/etc/sysconfig/openvswitch
 +ExecStart=/usr/share/openvswitch/scripts/ovs-ctl start --system-id=random $OPTIONS
 +ExecStop=/usr/share/openvswitch/scripts/ovs-ctl stop
-Index: new/debian/openvswitch-switch.openvswitch.service
+Index: devel/debian/openvswitch-switch.openvswitch.service
 ===================================================================
 --- /dev/null
-+++ new/debian/openvswitch-switch.openvswitch.service
++++ devel/debian/openvswitch-switch.openvswitch.service
 @@ -0,0 +1,13 @@
 +[Unit]
 +Description=Open vSwitch
@@ -33,12 +33,12 @@ Index: new/debian/openvswitch-switch.openvswitch.service
 +
 +[Install]
 +WantedBy=multi-user.target
-Index: new/debian/rules
+Index: devel/debian/rules
 ===================================================================
---- a/debian/rules
-+++ b/debian/rules
-@@ -82,8 +82,10 @@ override_dh_install:
-                debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/xenserver/LICENSE
+--- devel.orig/debian/rules
++++ devel/debian/rules
+@@ -87,8 +87,10 @@ override_dh_install:
+ 		debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/xenserver/LICENSE
  
  override_dh_installinit:
 -        dh_installinit -p "openvswitch-switch" -R -- start 20 S . stop 80 0 6 .
@@ -49,20 +49,20 @@ Index: new/debian/rules
 +	dh_systemd_start -p "openvswitch-switch"  --name openvswitch-nonetwork --restart-after-upgrade
  
  override_dh_strip:
-        dh_strip --dbg-package=openvswitch-dbg
-Index: new/debian/control
+ 	dh_strip --dbg-package=openvswitch-dbg
+Index: devel/debian/control
 ===================================================================
---- a/debian/control
-+++ b/debian/control
+--- devel.orig/debian/control
++++ devel/debian/control
 @@ -14,6 +14,7 @@ Build-Depends: graphviz,
                 openssl,
                 procps,
                 python-all (>= 2.7),
-+               dh-systemd (>= 1.4)
++	       dh-systemd (>= 1.4),
+                python-six
  Standards-Version: 3.9.3
  Homepage: http://openvswitch.org/
- 
-@@ -66,7 +67,8 @@ Depends: kmod | module-init-tools,
+@@ -69,7 +70,8 @@ Depends: kmod | module-init-tools,
           uuid-runtime,
           ${misc:Depends},
           ${python:Depends},
@@ -72,33 +72,11 @@ Index: new/debian/control
  Description: Open vSwitch switch implementations
   Open vSwitch is a production quality, multilayer, software-based,
   Ethernet virtual switch. It is designed to enable massive network
-Index: new/Makefile.in
+Index: devel/debian/automake.mk
 ===================================================================
---- new.orig/Makefile.in
-+++ new/Makefile.in
-@@ -762,7 +762,7 @@ am__noinst_HEADERS_DIST = BUILD.Windows
- 	debian/openvswitch-ipsec.install debian/openvswitch-pki.dirs \
- 	debian/openvswitch-pki.postinst debian/openvswitch-pki.postrm \
- 	debian/openvswitch-switch.README.Debian \
--	debian/openvswitch-switch.dirs debian/openvswitch-switch.init \
-+	debian/openvswitch-switch.dirs \
- 	debian/openvswitch-switch.install \
- 	debian/openvswitch-switch.logrotate \
- 	debian/openvswitch-switch.manpages \
-@@ -1180,7 +1180,7 @@ EXTRA_DIST = BUILD.Windows CONTRIBUTING
- 	debian/openvswitch-ipsec.install debian/openvswitch-pki.dirs \
- 	debian/openvswitch-pki.postinst debian/openvswitch-pki.postrm \
- 	debian/openvswitch-switch.README.Debian \
--	debian/openvswitch-switch.dirs debian/openvswitch-switch.init \
-+	debian/openvswitch-switch.dirs \
- 	debian/openvswitch-switch.install \
- 	debian/openvswitch-switch.logrotate \
- 	debian/openvswitch-switch.manpages \
-Index: new/debian/automake.mk
-===================================================================
---- new.orig/debian/automake.mk
-+++ new/debian/automake.mk
-@@ -26,7 +26,6 @@ EXTRA_DIST += \
+--- devel.orig/debian/automake.mk
++++ devel/debian/automake.mk
+@@ -27,7 +27,6 @@ EXTRA_DIST += \
  	debian/openvswitch-pki.postrm \
  	debian/openvswitch-switch.README.Debian \
  	debian/openvswitch-switch.dirs \

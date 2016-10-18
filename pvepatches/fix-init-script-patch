@@ -1,15 +1,16 @@
-Index: new/debian/openvswitch-switch.init
+Index: devel/debian/openvswitch-switch.init
 ===================================================================
---- new.orig/debian/openvswitch-switch.init	2013-12-18 07:59:19.000000000 +0100
-+++ new/debian/openvswitch-switch.init	2013-12-18 09:16:04.138935573 +0100
-@@ -85,17 +85,14 @@
- 
+--- devel.orig/debian/openvswitch-switch.init
++++ devel/debian/openvswitch-switch.init
+@@ -89,15 +89,15 @@ restart () {
          if [ -e /sys/module/openvswitch ]; then
-             LOADED_SRCVERSION=`cat /sys/module/openvswitch/srcversion`
--            LOADED_VERSION=`cat /sys/module/openvswitch/version`
-         elif [ -e /sys/module/openvswitch_mod ]; then
-             LOADED_SRCVERSION=`cat /sys/module/openvswitch_mod/srcversion`
--            LOADED_VERSION=`cat /sys/module/openvswitch_mod/version`
+             LOADED_SRCVERSION=`cat /sys/module/openvswitch/srcversion \
+                                2>/dev/null`
+-            LOADED_VERSION=`cat /sys/module/openvswitch/version \
+-                            2>/dev/null`
++	elif [ -e /sys/module/openvswitch_mod ]; then
++	    LOADED_SRCVERSION=`cat /sys/module/openvswitch_mod/srcversion \
++                               2>/dev/null`
          fi
          SRCVERSION=`modinfo -F srcversion openvswitch 2>/dev/null`
 -        VERSION=`modinfo -F version openvswitch 2>/dev/null`
