@@ -27,7 +27,7 @@ deb ${DEBS}: ${OVSSRC}
 	echo "git clone git://git.proxmox.com/git/openvswitch.git\\ngit checkout ${GITVERSION}" > ${OVSDIR}/debian/SOURCE
 	echo "debian/SOURCE" >> ${OVSDIR}/debian/openvswitch-common.docs
 	echo "debian/SOURCE" >> ${OVSDIR}/debian/openvswitch-switch.docs
-	cd ${OVSDIR}; dpkg-buildpackage -b -rfakeroot -us -uc	
+	cd ${OVSDIR}; dpkg-buildpackage -b -jauto -rfakeroot -us -uc
 
 .PHONY: download
 ${OVSSRC} download:
