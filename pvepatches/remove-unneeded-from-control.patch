@@ -2,7 +2,7 @@ Index: devel/debian/control
 ===================================================================
 --- devel.orig/debian/control
 +++ devel/debian/control
-@@ -14,8 +14,6 @@ Build-Depends: graphviz,
+@@ -14,46 +14,10 @@ Build-Depends: graphviz,
                 openssl,
                 procps,
                 python-all (>= 2.7),
@@ -11,10 +11,25 @@ Index: devel/debian/control
                 python-six
  Standards-Version: 3.9.3
  Homepage: http://openvswitch.org/
-@@ -38,22 +36,6 @@ Description: Open vSwitch datapath modul
-  from it using module-assistant or make-kpkg.  README.Debian in this
-  package provides further instructions.
  
+-Package: openvswitch-datapath-source
+-Architecture: all
+-Depends: bzip2, debhelper (>= 5.0.37), module-assistant, ${misc:Depends}
+-Suggests: openvswitch-switch
+-Description: Open vSwitch datapath module source - module-assistant version
+- Open vSwitch is a production quality, multilayer, software-based,
+- Ethernet virtual switch. It is designed to enable massive network
+- automation through programmatic extension, while still supporting
+- standard management interfaces and protocols (e.g. NetFlow, IPFIX,
+- sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In addition, it is designed
+- to support distribution across multiple physical servers similar to
+- VMware's vNetwork distributed vswitch or Cisco's Nexus 1000V.
+- .
+- This package provides the Open vSwitch datapath module source code
+- that is needed by openvswitch-switch.  The kernel module can be built
+- from it using module-assistant or make-kpkg.  README.Debian in this
+- package provides further instructions.
+-
 -Package: openvswitch-datapath-dkms
 -Architecture: all
 -Depends: dkms (>= 1.95), libc6-dev, make, ${misc:Depends}, ${python:Depends}
@@ -34,3 +49,267 @@ Index: devel/debian/control
  Package: openvswitch-common
  Architecture: linux-any
  Depends: openssl,
+@@ -100,138 +64,6 @@ Description: Open vSwitch switch implementations
+  openvswitch-switch provides the userspace components and utilities for
+  the Open vSwitch kernel-based switch.
+ 
+-Package: ovn-common
+-Architecture: linux-any
+-Depends: openvswitch-common (= ${binary:Version}),
+-         ${misc:Depends},
+-         ${shlibs:Depends}
+-Description: OVN common components
+- OVN, the Open Virtual Network, is a system to support virtual network
+- abstraction.  OVN complements the existing capabilities of OVS to add
+- native support for virtual network abstractions, such as virtual L2 and L3
+- overlays and security groups.
+- .
+- ovn-common provides components required by other OVN packages.
+-
+-Package: ovn-controller-vtep
+-Architecture: linux-any
+-Depends: ovn-common (= ${binary:Version}),
+-         ${misc:Depends},
+-         ${shlibs:Depends}
+-Description: OVN vtep controller
+- ovn-controller-vtep is the local controller daemon in
+- OVN, the Open Virtual Network, for VTEP enabled physical switches.
+- It connects up to the OVN Southbound database over the OVSDB protocol,
+- and down to the VTEP database over the OVSDB protocol.
+- .
+- ovn-controller-vtep provides the ovn-controller-vtep binary for controlling
+- vtep gateways.
+-
+-
+-Package: ovn-host
+-Architecture: linux-any
+-Depends: openvswitch-switch (= ${binary:Version}),
+-         openvswitch-common (= ${binary:Version}),
+-         ovn-common (= ${binary:Version}),
+-         ${misc:Depends},
+-         ${shlibs:Depends}
+-Description: OVN host components
+- OVN, the Open Virtual Network, is a system to support virtual network
+- abstraction.  OVN complements the existing capabilities of OVS to add
+- native support for virtual network abstractions, such as virtual L2 and L3
+- overlays and security groups.
+- .
+- ovn-host provides the userspace components and utilities for
+- OVN that can be run on every host/hypervisor.
+-
+-Package: ovn-central
+-Architecture: linux-any
+-Depends: openvswitch-switch (= ${binary:Version}),
+-         openvswitch-common (= ${binary:Version}),
+-         ovn-common (= ${binary:Version}),
+-         ${misc:Depends},
+-         ${shlibs:Depends}
+-Description: OVN central components
+- OVN, the Open Virtual Network, is a system to support virtual network
+- abstraction.  OVN complements the existing capabilities of OVS to add
+- native support for virtual network abstractions, such as virtual L2 and L3
+- overlays and security groups.
+- .
+- ovn-central provides the userspace daemons, utilities and
+- databases for OVN that is run at a central location.
+-
+-Package: ovn-docker
+-Architecture: any
+-Depends: openvswitch-switch (= ${binary:Version}),
+-         openvswitch-common (= ${binary:Version}),
+-         python (>= 2.7),
+-         python-openvswitch (= ${source:Version}),
+-         ovn-common (= ${binary:Version}),
+-         ${misc:Depends},
+-         ${python:Depends},
+-         ${shlibs:Depends}
+-Description: OVN Docker drivers
+- OVN, the Open Virtual Network, is a system to support virtual network
+- abstraction.  OVN complements the existing capabilities of OVS to add
+- native support for virtual network abstractions, such as virtual L2 and L3
+- overlays and security groups.
+- .
+- ovn-docker provides the docker drivers for OVN.
+-
+-Package: openvswitch-ipsec
+-Architecture: linux-any
+-Depends: ipsec-tools (>=0.8~alpha20101208),
+-         iproute2,
+-         openvswitch-common (= ${binary:Version}),
+-         openvswitch-switch (= ${binary:Version}),
+-         python,
+-         python-openvswitch (= ${source:Version}),
+-         racoon (>=0.8~alpha20101208),
+-         ${misc:Depends},
+-         ${shlibs:Depends}
+-Description: Open vSwitch GRE-over-IPsec support
+- Open vSwitch is a production quality, multilayer, software-based,
+- Ethernet virtual switch. It is designed to enable massive network
+- automation through programmatic extension, while still supporting
+- standard management interfaces and protocols (e.g. NetFlow, IPFIX,
+- sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In addition, it is designed
+- to support distribution across multiple physical servers similar to
+- VMware's vNetwork distributed vswitch or Cisco's Nexus 1000V.
+- .
+- The ovs-monitor-ipsec script provides support for encrypting GRE
+- tunnels with IPsec.
+- IPsec tunnels support is deprecated.
+-
+-Package: openvswitch-pki
+-Architecture: all
+-Depends: openvswitch-common (<< ${source:Version}.1~),
+-         openvswitch-common (>= ${source:Version}),
+-         ${misc:Depends}
+-Description: Open vSwitch public key infrastructure dependency package
+- Open vSwitch is a production quality, multilayer, software-based,
+- Ethernet virtual switch. It is designed to enable massive network
+- automation through programmatic extension, while still supporting
+- standard management interfaces and protocols (e.g. NetFlow, IPFIX,
+- sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In addition, it is designed
+- to support distribution across multiple physical servers similar to
+- VMware's vNetwork distributed vswitch or Cisco's Nexus 1000V.
+- .
+- openvswitch-pki provides PKI (public key infrastructure) support for
+- Open vSwitch switches and controllers, reducing the risk of
+- man-in-the-middle attacks on the Open vSwitch network infrastructure.
+-
+-Package: openvswitch-testcontroller
+-Architecture: linux-any
+-Depends: openvswitch-common (= ${binary:Version}),
+-         openvswitch-pki (= ${source:Version}),
+-         ${misc:Depends},
+-         ${shlibs:Depends}
+-Description: Simple controller for testing OpenFlow setups
+- This controller enables OpenFlow switches that connect to it to act
+- as MAC-learning Ethernet switches.  It can be used for initial
+- testing of OpenFlow networks.  It is not a necessary or desirable
+- part of a production OpenFlow deployment.
+-
+ Package: openvswitch-dbg
+ Section: debug
+ Architecture: linux-any
+@@ -253,72 +85,3 @@ Description: Debug symbols for Open vSwitch packages
+  This package contains the debug symbols for all the other openvswitch-*
+  packages.  Install it to debug one of them or to examine a core dump
+  produced by one of them.
+-
+-Package: python-openvswitch
+-Architecture: all
+-Section: python
+-Depends: ${misc:Depends}, ${python:Depends}, python-six
+-Description: Python bindings for Open vSwitch
+- Open vSwitch is a production quality, multilayer, software-based,
+- Ethernet virtual switch. It is designed to enable massive network
+- automation through programmatic extension, while still supporting
+- standard management interfaces and protocols (e.g. NetFlow, IPFIX,
+- sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In addition, it is designed
+- to support distribution across multiple physical servers similar to
+- VMware's vNetwork distributed vswitch or Cisco's Nexus 1000V.
+- .
+- This package contains the full Python bindings for Open vSwitch database.
+-
+-Package: openvswitch-test
+-Architecture: all
+-Depends: python (>= 2.7) | python-argparse,
+-         python-twisted-web,
+-         ${misc:Depends},
+-         ${python:Depends}
+-Description: Open vSwitch test package
+- Open vSwitch is a production quality, multilayer, software-based,
+- Ethernet virtual switch. It is designed to enable massive network
+- automation through programmatic extension, while still supporting
+- standard management interfaces and protocols (e.g. NetFlow, IPFIX,
+- sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In addition, it is designed
+- to support distribution across multiple physical servers similar to
+- VMware's vNetwork distributed vswitch or Cisco's Nexus 1000V.
+- .
+- This package contains utilities that are useful to diagnose
+- performance and connectivity issues in Open vSwitch setup.
+-
+-Package: openvswitch-vtep
+-Architecture: linux-any
+-Depends: openvswitch-common (>= ${binary:Version}),
+-         openvswitch-switch (>= ${binary:Version}),
+-         python,
+-         python-openvswitch (>= ${source:Version}),
+-         ${misc:Depends},
+-         ${shlibs:Depends}
+-Description: Open vSwitch VTEP utilities
+- Open vSwitch is a production quality, multilayer, software-based, Ethernet
+- virtual switch. It is designed to enable massive network automation through
+- programmatic extension, while still supporting standard management interfaces
+- and protocols (e.g. NetFlow, sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In
+- addition, it is designed to support distribution across multiple physical
+- servers similar to VMware's vNetwork distributed vswitch or Cisco's Nexus
+- 1000V.
+- .
+- This package provides utilities that are useful to interact with a
+- VTEP-configured database and a VTEP emulator.
+-
+-Package: openvswitch-dev
+-Architecture: linux-any
+-Depends:
+- openvswitch-common (>= ${binary:Version}),
+- ${misc:Depends}
+-Description: Open vSwitch development package
+- Open vSwitch is a production quality, multilayer, software-based, Ethernet
+- virtual switch. It is designed to enable massive network automation through
+- programmatic extension, while still supporting standard management interfaces
+- and protocols (e.g. NetFlow, sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In
+- addition, it is designed to support distribution across multiple physical
+- servers similar to VMware's vNetwork distributed vswitch or Cisco's Nexus
+- 1000V.
+- .
+- This package provides openvswitch headers and libopenvswitch for developers.
+Index: devel/debian/rules
+===================================================================
+--- devel.orig/debian/rules
++++ devel/debian/rules
+@@ -12,7 +12,6 @@
+ #export DH_VERBOSE=1
+ 
+ PACKAGE=openvswitch
+-PACKAGE_DKMS=openvswitch-datapath-dkms
+ DEB_UPSTREAM_VERSION=$(shell dpkg-parsechangelog | sed -rne 's,^Version: ([0-9]+:)?([0-9][a-zA-Z0-9.+:~-]*)(-[a-zA-Z0-9*.~]*),\2,p')
+ 
+ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+@@ -53,39 +52,6 @@ override_dh_install:
+ 	# openvswitch-switch
+ 	cp debian/openvswitch-switch.template debian/openvswitch-switch/usr/share/openvswitch/switch/default.template
+ 
+-	# ovn-host
+-	cp debian/ovn-host.template debian/ovn-host/usr/share/ovn/host/default.template
+-
+-	# ovn-central
+-	cp debian/ovn-central.template debian/ovn-central/usr/share/ovn/central/default.template
+-
+-	# openvswitch-datapath-source
+-	cp debian/rules.modules debian/openvswitch-datapath-source/usr/src/modules/openvswitch-datapath/debian/rules
+-	chmod 755 debian/openvswitch-datapath-source/usr/src/modules/openvswitch-datapath/debian/rules
+-	cd debian/openvswitch-datapath-source/usr/src && tar -c modules | bzip2 -9 > openvswitch-datapath.tar.bz2 && rm -rf modules
+-
+-	# openvswitch-datapath-dkms
+-	# setup the dirs
+-	dh_installdirs -p$(PACKAGE_DKMS) usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)
+-
+-	# copy the source
+-	cd debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION) && tar xvzf $(CURDIR)/openvswitch.tar.gz && mv openvswitch/* openvswitch/.[a-z]* . && rmdir openvswitch
+-
+-	# check we can get kernel module names
+-	$(MAKE) -C datapath print-build-modules
+-
+-	# Prepare dkms.conf from the dkms.conf.in template
+-	sed "s/__VERSION__/$(DEB_UPSTREAM_VERSION)/g; s/__MODULES__/$(shell $(MAKE) -C datapath print-build-modules | grep -v make)/" debian/dkms.conf.in > debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/dkms.conf
+-
+-	# We don't need the debian folder in there, just upstream sources...
+-	rm -rf debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/debian
+-	# We don't need the rhel stuff in there either
+-	rm -rf debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/rhel
+-	# And we should also clean useless license files, which are already
+-	# described in our debian/copyright anyway.
+-	rm -f debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/COPYING \
+-		debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/xenserver/LICENSE
+-
+ override_dh_installinit:
+ 	dh_installinit -R
+ 

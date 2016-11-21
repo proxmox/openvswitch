@@ -43,17 +43,3 @@ Index: new/debian/openvswitch-switch.init
      set ovs_ctl ${1-start} --system-id=random
      if test X"$FORCE_COREFILES" != X; then
  	set "$@" --force-corefiles="$FORCE_COREFILES"
-Index: new/debian/rules
-===================================================================
---- a/debian/rules
-+++ b/debian/rules
-@@ -82,7 +82,8 @@ override_dh_install:
- 		debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/xenserver/LICENSE
- 
- override_dh_installinit:
--	dh_installinit -R
-+        dh_installinit -p "openvswitch-switch" -R -- start 20 S . stop 80 0 6 .
-+        dh_installinit --remaining-packages -R
- 
- override_dh_strip:
- 	dh_strip --dbg-package=openvswitch-dbg

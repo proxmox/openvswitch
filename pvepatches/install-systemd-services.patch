@@ -37,12 +37,11 @@ Index: devel/debian/rules
 ===================================================================
 --- devel.orig/debian/rules
 +++ devel/debian/rules
-@@ -87,8 +87,10 @@ override_dh_install:
- 		debian/$(PACKAGE_DKMS)/usr/src/$(PACKAGE)-$(DEB_UPSTREAM_VERSION)/xenserver/LICENSE
+@@ -53,7 +53,10 @@ override_dh_install:
+ 	cp debian/openvswitch-switch.template debian/openvswitch-switch/usr/share/openvswitch/switch/default.template
  
  override_dh_installinit:
--        dh_installinit -p "openvswitch-switch" -R -- start 20 S . stop 80 0 6 .
--        dh_installinit --remaining-packages -R
+-	dh_installinit -R
 +	dh_systemd_enable -p "openvswitch-switch" --name openvswitch
 +	dh_systemd_enable -p "openvswitch-switch" --name openvswitch-nonetwork
 +	dh_installinit
@@ -58,11 +57,11 @@ Index: devel/debian/control
                 openssl,
                 procps,
                 python-all (>= 2.7),
-+	       dh-systemd (>= 1.4),
++               dh-systemd (>= 1.4),
                 python-six
  Standards-Version: 3.9.3
  Homepage: http://openvswitch.org/
-@@ -69,7 +70,8 @@ Depends: kmod | module-init-tools,
+@@ -51,7 +52,8 @@ Depends: kmod | module-init-tools,
           uuid-runtime,
           ${misc:Depends},
           ${python:Depends},
