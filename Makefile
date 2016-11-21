@@ -38,13 +38,7 @@ ${OVSSRC} download:
 
 .PHONY: upload
 upload: ${DEBS}
-	umount /pve/${RELEASE}; mount /pve/${RELEASE} -o rw
-	mkdir -p /pve/${RELEASE}/extra
-	rm -f /pve/${RELEASE}/extra/openvswitch-*.deb
-	rm -f /pve/${RELEASE}/extra/Packages*
-	cp ${DEBS} /pve/${RELEASE}/extra
-	cd /pve/${RELEASE}/extra; dpkg-scanpackages . /dev/null > Packages; gzip -9c Packages > Packages.gz
-	umount /pve/${RELEASE}; mount /pve/${RELEASE} -o ro
+	tar cf - ${DEBS} | ssh repoman@repo.proxmox.com upload
 
 .PHONY: distclean
 distclean: clean
