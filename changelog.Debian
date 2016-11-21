@@ -1,8 +1,14 @@
+openvswitch (2.6.0-2) unstable; urgency=medium
+
+  * drop System V init script
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 21 Nov 2016 15:35:52 +0100
+
 openvswitch (2.6.0-1) unstable; urgency=medium
 
   * update to 2.6.0
 
- -- Proxmox Support Team <support@proxmox.com>  Wed, 18 Oct 2016 07:00:45 +0200
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 21 Nov 2016 15:15:48 +0100
 
 openvswitch (2.5.0-1) unstable; urgency=medium
 
