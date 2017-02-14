@@ -17,7 +17,9 @@ DEBS=								\
 all: ${DEBS}
 	echo ${DEBS}
 
-deb ${DEBS}: ${OVSSRC}
+.PHONY: deb
+deb: ${DEBS}
+${DEBS}: ${OVSSRC}
 	rm -rf ${OVSDIR}
 	tar xf ${OVSSRC}
 	cd  ${OVSDIR}; ln -s ../pvepatches patches
