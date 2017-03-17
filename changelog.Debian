@@ -1,3 +1,9 @@
+openvswitch (2.7.0-1) unstable; urgency=medium
+
+  * update to 2.7.0, recompile for Debian stretch
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 17 Mar 2017 17:11:08 +0100
+
 openvswitch (2.6.0-2) unstable; urgency=medium
 
   * drop System V init script

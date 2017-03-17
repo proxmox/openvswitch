@@ -1,7 +1,7 @@
-Index: devel/debian/control
+Index: openvswitch-2.7.0/debian/control
 ===================================================================
---- devel.orig/debian/control
-+++ devel/debian/control
+--- openvswitch-2.7.0.orig/debian/control
++++ openvswitch-2.7.0/debian/control
 @@ -14,46 +14,10 @@ Build-Depends: graphviz,
                 openssl,
                 procps,
@@ -49,7 +49,7 @@ Index: devel/debian/control
  Package: openvswitch-common
  Architecture: linux-any
  Depends: openssl,
-@@ -100,138 +64,6 @@ Description: Open vSwitch switch implementations
+@@ -100,114 +64,6 @@ Description: Open vSwitch switch impleme
   openvswitch-switch provides the userspace components and utilities for
   the Open vSwitch kernel-based switch.
  
@@ -114,7 +114,7 @@ Index: devel/debian/control
 - databases for OVN that is run at a central location.
 -
 -Package: ovn-docker
--Architecture: any
+-Architecture: linux-any
 -Depends: openvswitch-switch (= ${binary:Version}),
 -         openvswitch-common (= ${binary:Version}),
 -         python (>= 2.7),
@@ -130,30 +130,6 @@ Index: devel/debian/control
 - overlays and security groups.
 - .
 - ovn-docker provides the docker drivers for OVN.
--
--Package: openvswitch-ipsec
--Architecture: linux-any
--Depends: ipsec-tools (>=0.8~alpha20101208),
--         iproute2,
--         openvswitch-common (= ${binary:Version}),
--         openvswitch-switch (= ${binary:Version}),
--         python,
--         python-openvswitch (= ${source:Version}),
--         racoon (>=0.8~alpha20101208),
--         ${misc:Depends},
--         ${shlibs:Depends}
--Description: Open vSwitch GRE-over-IPsec support
-- Open vSwitch is a production quality, multilayer, software-based,
-- Ethernet virtual switch. It is designed to enable massive network
-- automation through programmatic extension, while still supporting
-- standard management interfaces and protocols (e.g. NetFlow, IPFIX,
-- sFlow, SPAN, RSPAN, CLI, LACP, 802.1ag). In addition, it is designed
-- to support distribution across multiple physical servers similar to
-- VMware's vNetwork distributed vswitch or Cisco's Nexus 1000V.
-- .
-- The ovs-monitor-ipsec script provides support for encrypting GRE
-- tunnels with IPsec.
-- IPsec tunnels support is deprecated.
 -
 -Package: openvswitch-pki
 -Architecture: all
@@ -188,7 +164,7 @@ Index: devel/debian/control
  Package: openvswitch-dbg
  Section: debug
  Architecture: linux-any
-@@ -253,72 +85,3 @@ Description: Debug symbols for Open vSwitch packages
+@@ -229,72 +85,3 @@ Description: Debug symbols for Open vSwi
   This package contains the debug symbols for all the other openvswitch-*
   packages.  Install it to debug one of them or to examine a core dump
   produced by one of them.
@@ -261,10 +237,10 @@ Index: devel/debian/control
 - 1000V.
 - .
 - This package provides openvswitch headers and libopenvswitch for developers.
-Index: devel/debian/rules
+Index: openvswitch-2.7.0/debian/rules
 ===================================================================
---- devel.orig/debian/rules
-+++ devel/debian/rules
+--- openvswitch-2.7.0.orig/debian/rules
++++ openvswitch-2.7.0/debian/rules
 @@ -12,7 +12,6 @@
  #export DH_VERBOSE=1
  
@@ -273,7 +249,7 @@ Index: devel/debian/rules
  DEB_UPSTREAM_VERSION=$(shell dpkg-parsechangelog | sed -rne 's,^Version: ([0-9]+:)?([0-9][a-zA-Z0-9.+:~-]*)(-[a-zA-Z0-9*.~]*),\2,p')
  
  ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-@@ -53,39 +52,6 @@ override_dh_install:
+@@ -53,42 +52,9 @@ override_dh_install-arch:
  	# openvswitch-switch
  	cp debian/openvswitch-switch.template debian/openvswitch-switch/usr/share/openvswitch/switch/default.template
  
@@ -283,6 +259,9 @@ Index: devel/debian/rules
 -	# ovn-central
 -	cp debian/ovn-central.template debian/ovn-central/usr/share/ovn/central/default.template
 -
+ override_dh_install-indep:
+ 	dh_install
+ 
 -	# openvswitch-datapath-source
 -	cp debian/rules.modules debian/openvswitch-datapath-source/usr/src/modules/openvswitch-datapath/debian/rules
 -	chmod 755 debian/openvswitch-datapath-source/usr/src/modules/openvswitch-datapath/debian/rules
