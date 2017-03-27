@@ -46,7 +46,7 @@ distclean: clean
 
 .PHONY: clean
 clean:
-	rm -rf *~ ${OVSSRC}.tmp ${OVSDIR} *.deb *.changes ${OVSDIR}.git
+	rm -rf *~ ${OVSSRC}.tmp ${OVSDIR} *.deb *.changes *.buildinfo ${OVSDIR}.git
 
 .PHONY: dinstall
 dinstall: ${DEBS}
