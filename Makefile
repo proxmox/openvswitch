@@ -8,16 +8,17 @@ OVSSRC=openvswitch-${OVSVER}.tar.gz
 ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
 GITVERSION:=$(shell cat .git/refs/heads/master)
 
-DEBS=								\
-	openvswitch-common_${OVSVER}-${PKGRELEASE}_${ARCH}.deb	\
-	openvswitch-switch_${OVSVER}-${PKGRELEASE}_${ARCH}.deb
+DEB1=openvswitch-common_${OVSVER}-${PKGRELEASE}_${ARCH}.deb
+DEB2=openvswitch-switch_${OVSVER}-${PKGRELEASE}_${ARCH}.deb
+DEBS=$(DEB1) $(DEB2)
 
 all: ${DEBS}
 	echo ${DEBS}
 
 .PHONY: deb
-deb: ${DEBS}
-${DEBS}: ${OVSSRC}
+deb: $(DEBS)
+$(DEB2): $(DEB1)
+$(DEB1): ${OVSSRC}
 	rm -rf ${OVSDIR}
 	tar xf ${OVSSRC}
 	cd  ${OVSDIR}; ln -s ../pvepatches patches
