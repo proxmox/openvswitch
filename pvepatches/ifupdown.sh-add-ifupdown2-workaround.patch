@@ -1,0 +1,154 @@
+From 8eef7f26c0489a582f8d8dd8fe8da8e573454d42 Mon Sep 17 00:00:00 2001
+From: root <root@kvmformation1.odiso.net>
+Date: Wed, 16 May 2018 10:22:22 +0200
+Subject: [PATCH] ifupdown.sh : add ifupdown2 workaround
+
+with ifupdown2, we can't call ifup for each ovs_ports in OvsBridge.
+But as we define also ovs_bridge for each interface, we can simply add
+the bridge here, to be sure that it's exist before adding the interface.
+
+for config, we simply need to replace allow-..., with auto.
+I have keeped ovs_ports to avoid config change, but it's not used.
+
+old config
+----------
+auto vmbr100
+iface vmbr100 inet manual
+        ovs_type OVSBridge
+        ovs_ports bond0 ovsinternalport
+
+allow-vmbr100 ovsinternalport
+iface ovsinternalport inet static
+        address  172.16.0.10
+        netmask  255.255.255.0
+        ovs_type OVSIntPort
+        ovs_bridge vmbr100
+        ovs_options tag=30
+
+allow-vmbr100 bond0
+iface bond0 inet manual
+        ovs_bonds eno3 eno4
+        ovs_type OVSBond
+        ovs_bridge vmbr100
+        ovs_options bond_mode=balance-slb lacp=active
+
+new config
+----------
+auto vmbr100
+iface vmbr100 inet manual
+        ovs_type OVSBridge
+        ovs_ports bond0 ovsinternalport
+
+auto ovsinternalport
+iface ovsinternalport inet static
+        address  172.16.0.10
+        netmask  255.255.255.0
+        ovs_type OVSIntPort
+        ovs_bridge vmbr100
+        ovs_options tag=30
+
+auto bond0
+iface bond0 inet manual
+        ovs_bonds eno3 eno4
+        ovs_type OVSBond
+        ovs_bridge vmbr100
+        ovs_options bond_mode=balance-slb lacp=active
+---
+ debian/ifupdown.sh | 44 ++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 40 insertions(+), 4 deletions(-)
+
+diff --git a/debian/ifupdown.sh b/debian/ifupdown.sh
+index e21215a..098d913 100755
+--- a/debian/ifupdown.sh
++++ b/debian/ifupdown.sh
+@@ -44,11 +44,20 @@ if [ "${MODE}" = "start" ]; then
+                 ovs_vsctl -- --may-exist add-br "${IFACE}" ${IF_OVS_OPTIONS}\
+                          ${OVS_EXTRA+-- $OVS_EXTRA}
+ 
+-                if [ ! -z "${IF_OVS_PORTS}" ]; then
+-                    ifup --allow="${IFACE}" ${IF_OVS_PORTS}
++		if [ ! -f /usr/share/ifupdown2/ifupdown2 ]; then
++                    if [ ! -z "${IF_OVS_PORTS}" ]; then
++                        ifup --allow="${IFACE}" ${IF_OVS_PORTS}
++                    fi
+                 fi
++
+                 ;;
+         OVSPort)
++
++		if [ -f /usr/share/ifupdown2/ifupdown2 ]; then
++		    ovs_vsctl -- --may-exist add-br "${IF_OVS_BRIDGE}"
++                    ip link set "${IF_OVS_BRIDGE}" up
++                fi
++
+                 ovs_vsctl -- --may-exist add-port "${IF_OVS_BRIDGE}"\
+                     "${IFACE}" ${IF_OVS_OPTIONS} \
+                     ${OVS_EXTRA+-- $OVS_EXTRA}
+@@ -56,6 +65,12 @@ if [ "${MODE}" = "start" ]; then
+                 ifconfig "${IFACE}" up
+                 ;;
+         OVSIntPort)
++
++		if [ -f /usr/share/ifupdown2/ifupdown2 ]; then
++		    ovs_vsctl -- --may-exist add-br "${IF_OVS_BRIDGE}"
++                    ip link set "${IF_OVS_BRIDGE}" up
++                fi
++
+                 ovs_vsctl -- --may-exist add-port "${IF_OVS_BRIDGE}"\
+                     "${IFACE}" ${IF_OVS_OPTIONS} -- set Interface "${IFACE}"\
+                     type=internal ${OVS_EXTRA+-- $OVS_EXTRA}
+@@ -63,6 +78,12 @@ if [ "${MODE}" = "start" ]; then
+                 ifconfig "${IFACE}" up
+                 ;;
+         OVSBond)
++
++		if [ -f /usr/share/ifupdown2/ifupdown2 ]; then
++		    ovs_vsctl -- --may-exist add-br "${IF_OVS_BRIDGE}"
++                    ip link set "${IF_OVS_BRIDGE}" up
++                fi
++
+                 ovs_vsctl -- --fake-iface add-bond "${IF_OVS_BRIDGE}"\
+                     "${IFACE}" ${IF_OVS_BONDS} ${IF_OVS_OPTIONS} \
+                     ${OVS_EXTRA+-- $OVS_EXTRA}
+@@ -74,12 +95,24 @@ if [ "${MODE}" = "start" ]; then
+                 done
+                 ;;
+         OVSPatchPort)
++
++		if [ -f /usr/share/ifupdown2/ifupdown2 ]; then
++		    ovs_vsctl -- --may-exist add-br "${IF_OVS_BRIDGE}"
++                    ip link set "${IF_OVS_BRIDGE}" up
++                fi
++
+                 ovs_vsctl -- --may-exist add-port "${IF_OVS_BRIDGE}"\
+                     "${IFACE}" ${IF_OVS_OPTIONS} -- set Interface "${IFACE}" \
+                     type=patch options:peer="${IF_OVS_PATCH_PEER}" \
+                     ${OVS_EXTRA+-- $OVS_EXTRA}
+                 ;;
+         OVSTunnel)
++
++		if [ -f /usr/share/ifupdown2/ifupdown2 ]; then
++		    ovs_vsctl -- --may-exist add-br "${IF_OVS_BRIDGE}"
++                    ip link set "${IF_OVS_BRIDGE}" up
++                fi
++
+                 ovs_vsctl -- --may-exist add-port "${IF_OVS_BRIDGE}"\
+                     "${IFACE}" ${IF_OVS_OPTIONS} -- set Interface "${IFACE}" \
+                     type=${IF_OVS_TUNNEL_TYPE} ${IF_OVS_TUNNEL_OPTIONS} \
+@@ -92,8 +125,11 @@ if [ "${MODE}" = "start" ]; then
+ elif [ "${MODE}" = "stop" ]; then
+     case "${IF_OVS_TYPE}" in
+         OVSBridge)
+-                if [ ! -z "${IF_OVS_PORTS}" ]; then
+-                    ifdown --allow="${IFACE}" ${IF_OVS_PORTS}
++
++		if [ ! -f /usr/share/ifupdown2/ifupdown2 ]; then
++                    if [ ! -z "${IF_OVS_PORTS}" ]; then
++                        ifdown --allow="${IFACE}" ${IF_OVS_PORTS}
++                    fi
+                 fi
+ 
+                 ovs_vsctl -- --if-exists del-br "${IFACE}"
+-- 
+2.11.0
+
