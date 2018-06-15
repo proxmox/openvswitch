@@ -1,3 +1,9 @@
+openvswitch (2.7.0-3) stretch; urgency=low
+
+  * ifupdown2 compatibility fixes
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 15 Jun 2018 10:06:52 +0200
+
 openvswitch (2.7.0-2) stretch; urgency=low
 
   * added missing dependency: net-tools
