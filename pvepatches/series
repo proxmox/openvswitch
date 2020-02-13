@@ -1,7 +1,0 @@
-remove-unneeded-from-control.patch
-install-systemd-services.patch
-delete-openvswitch-switch-init.patch
-use-systemctl-inside-ifupdown.patch
-remove-init-script-on-upgrades.patch
-add-net-tools-dependency.patch
-ifupdown.sh-add-ifupdown2-workaround.patch
