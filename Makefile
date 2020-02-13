@@ -1,6 +1,6 @@
 # also add entry in changelog.Debian
-OVSVER=2.7.0
-PKGRELEASE=3
+OVSVER=2.12.0
+PKGRELEASE=1
 
 OVSDIR=openvswitch-${OVSVER}
 OVSSRC=openvswitch-${OVSVER}.tar.gz
@@ -21,14 +21,9 @@ $(DEB2): $(DEB1)
 $(DEB1): ${OVSSRC}
 	rm -rf ${OVSDIR}
 	tar xf ${OVSSRC}
-	cd  ${OVSDIR}; ln -s ../pvepatches patches
-	cd  ${OVSDIR};	quilt push -a
-	mv ${OVSDIR}/debian/changelog ${OVSDIR}/debian/changelog.org
-	cat changelog.Debian ${OVSDIR}/debian/changelog.org> ${OVSDIR}/debian/changelog
-	echo "git clone git://git.proxmox.com/git/openvswitch.git\\ngit checkout ${GITVERSION}" > ${OVSDIR}/debian/SOURCE
-	echo "debian/SOURCE" >> ${OVSDIR}/debian/openvswitch-common.docs
-	echo "debian/SOURCE" >> ${OVSDIR}/debian/openvswitch-switch.docs
-	cd ${OVSDIR}; dpkg-buildpackage -b -jauto -us -uc
+	rm -rf ${OVSDIR}/debian
+	cp -rf debian ${OVSDIR}
+	cd ${OVSDIR}; DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -b -jauto -us -uc
 
 .PHONY: download
 ${OVSSRC} download:
