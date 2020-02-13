@@ -1,5 +1,5 @@
-#usr/share/openvswitch/bugtool-plugins
-#usr/share/openvswitch/scripts/ovs-bugtool-*
+/usr/share/openvswitch/bugtool-plugins
+/usr/share/openvswitch/scripts/ovs-bugtool-*
 /usr/share/openvswitch/scripts
 etc/bash_completion.d/ovs-appctl-bashcomp.bash	usr/share/bash-completion/completions
 etc/bash_completion.d/ovs-vsctl-bashcomp.bash	usr/share/bash-completion/completions
