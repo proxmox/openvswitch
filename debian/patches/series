@@ -10,5 +10,3 @@ disable-even-more-tests.patch
 blacklist-ofproto-async-msg-ctrl-of1.3-because-of-mips.patch
 remove-yet-another-mips-failing-test.patch
 remove-non-deterministic-tests.patch
-0001-acinclude-Also-use-LIBS-from-dpkg-pkg-config.patch
-disable-failing-ovn-tests.patch
