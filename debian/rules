@@ -1,0 +1,133 @@
+#!/usr/bin/make -f
+
+UPSTREAM_GIT = https://github.com/openvswitch/ovs
+include /usr/share/openstack-pkg-tools/pkgos.make
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow
+
+%:
+	dh $@ --with autoreconf,python3,systemd,sphinxdoc
+
+# use --as-needed only if supported by dh-autoreconf (to simplify backporting)
+DH_AS_NEEDED=$(shell dpkg --compare-versions $$(dpkg --status dh-autoreconf | grep Version | cut -d' ' -f2) ge 6 && echo --as-needed)
+override_dh_autoreconf:
+	dh_autoreconf $(DH_AS_NEEDED)
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+PARALLEL = -j$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+else
+PARALLEL =
+endif
+
+override_dh_auto_configure:
+	test -d _debian || mkdir _debian
+	cd _debian && ( \
+		test -e Makefile || \
+		../configure --prefix=/usr --localstatedir=/var --enable-ssl --enable-shared \
+			--libdir=/usr/lib/$(DEB_HOST_MULTIARCH) \
+			--sysconfdir=/etc $(DATAPATH_CONFIGURE_OPTS))
+ifneq (,$(filter i386 amd64 ppc64el arm64, $(DEB_HOST_ARCH)))
+	test -d _dpdk || mkdir _dpdk
+	cd _dpdk && ( \
+		test -e Makefile || \
+		../configure --prefix=/usr --localstatedir=/var --enable-ssl --enable-shared \
+			--libdir=/usr/lib/$(DEB_HOST_MULTIARCH) \
+			--with-dpdk --sysconfdir=/etc \
+			$(DATAPATH_CONFIGURE_OPTS))
+endif
+
+override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	if $(MAKE) -C _debian check TESTSUITEFLAGS='$(PARALLEL)' || $(MAKE) -C _debian check TESTSUITEFLAGS='--recheck' ; then \
+		echo "===> Test suite (no dpdk) ran with success <==="; \
+	else \
+		cat _debian/tests/testsuite.log; \
+		exit 1; \
+	fi
+ifneq (,$(filter i386 amd64 ppc64el arm64, $(DEB_HOST_ARCH)))
+	if $(MAKE) -C _dpdk check TESTSUITEFLAGS='$(PARALLEL)' || $(MAKE) -C _dpdk check TESTSUITEFLAGS='--recheck' ; then \
+		echo "===> Test suite (with dpdk) ran with success <==="; \
+	else \
+		cat _dpdk/tests/testsuite.log; \
+		exit 1; \
+	fi
+endif # i386/amd64/ppc64el/arm64
+endif # nocheck
+
+override_dh_auto_build:
+	$(MAKE) $(PARALLEL) -C _debian distdir=openvswitch
+ifneq (,$(filter i386 amd64 ppc64el arm64, $(DEB_HOST_ARCH)))
+	$(MAKE) $(PARALLEL) -C _dpdk distdir=openvswitch_dpdk
+endif
+
+override_dh_auto_clean:
+	find . -name "*.pyc" -delete
+	dh_auto_clean
+	set -e ; make python/ovs/version.py && cd python && python3 setup.py clean ; rm -f ovs/version.py ; cd ..
+	rm -rf _debian _dpdk
+
+override_dh_auto_install-arch:
+	$(MAKE) -C _debian DESTDIR=$(CURDIR)/debian/tmp install
+
+	# Move ovs-vswitchd away, so we can use update-alternatives
+	mkdir -p $(CURDIR)/debian/openvswitch-common/usr/lib/openvswitch-common
+	mv $(CURDIR)/debian/tmp/usr/sbin/ovs-vswitchd \
+		$(CURDIR)/debian/openvswitch-common/usr/lib/openvswitch-common/ovs-vswitchd
+
+override_dh_auto_install-indep:
+	$(MAKE) -C _debian DESTDIR=$(CURDIR)/debian/tmp install
+	set -e && for pyvers in $(PYTHON3S); do \
+		cd python && python$$pyvers setup.py install --install-layout=deb \
+			--root $(CURDIR)/debian/python3-openvswitch; cd ..; \
+	done
+	rm -rf $(pwd)/debian/python*/usr/lib/python*/dist-packages/*.pth
+
+override_dh_install:
+	install -D -m 0644 utilities/ovs-vsctl-bashcomp.bash $(CURDIR)/debian/openvswitch-switch/usr/share/bash-completion/completions/ovs-vsctl
+	dh_install
+
+	rm -f $(CURDIR)/debian/tmp/usr/lib/*/*.la
+	dh_installman --language=C
+	rm -rf $(CURDIR)/debian/tmp/usr/share/man
+
+	dh_missing --fail-missing
+	# openvswitch-switch
+	mkdir -p debian/openvswitch-switch/usr/share/openvswitch/switch
+	cp debian/openvswitch-switch.template debian/openvswitch-switch/usr/share/openvswitch/switch/default.template
+
+	# ovn-host
+	mkdir -p debian/ovn-host/usr/share/ovn/host
+	cp debian/ovn-host.template debian/ovn-host/usr/share/ovn/host/default.template
+
+	# ovn-central
+	mkdir -p debian/ovn-central/usr/share/ovn/central
+	cp debian/ovn-central.template debian/ovn-central/usr/share/ovn/central/default.template
+
+ifneq (,$(filter i386 amd64 ppc64el arm64, $(DEB_HOST_ARCH)))
+	install -v -D _dpdk/vswitchd/ovs-vswitchd \
+		$(CURDIR)/debian/openvswitch-switch-dpdk/usr/lib/openvswitch-switch-dpdk/ovs-vswitchd-dpdk
+endif
+
+override_dh_installinit:
+	dh_installinit --restart-after-upgrade
+	dh_installinit -popenvswitch-switch --name=ovsdb-server --no-start
+	dh_installinit -popenvswitch-switch --name=ovs-vswitchd --no-start
+	dh_installinit -popenvswitch-switch --name=openvswitch-nonetwork --no-start --no-scripts
+
+override_dh_systemd_start:
+	dh_systemd_start --restart-after-upgrade
+	dh_systemd_start -popenvswitch-switch --name=ovsdb-server --no-start
+	dh_systemd_start -popenvswitch-switch --name=ovs-vswitchd --no-start
+
+override_dh_strip:
+	dh_strip --dbg-package=openvswitch-dbg
+
+override_dh_installman:
+	echo "Do nothing..."
+
+override_dh_python3:
+	dh_python3 --shebang=/usr/bin/python3
+	dh_python3 -popenvswitch-ipsec  /usr --shebang=/usr/bin/python3
+	dh_python3 -popenvswitch-vtep   /usr --shebang=/usr/bin/python3
+	dh_python3 -popenvswitch-switch /usr --shebang=/usr/bin/python3
+	dh_python3 usr/share/openvswitch/scripts --shebang=/usr/bin/python3

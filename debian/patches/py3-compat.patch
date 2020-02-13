@@ -1,0 +1,812 @@
+From 9f2edcde382b2de1f2b49c8fbfb0497385395a8c Mon Sep 17 00:00:00 2001
+From: James Page <james.page@ubuntu.com>
+Date: Thu, 8 Feb 2018 09:46:46 +0000
+Subject: [PATCH] Python 3 support
+
+Misc fixes to Python based tooling for compatibility with
+Python 2 and 3.
+
+Signed-off-by: James Page <james.page@ubuntu.com>
+---
+ ovn/utilities/ovn-detrace.in     | 20 ++++++++--------
+ python/ovstest/rpcserver.py      | 16 ++++---------
+ python/ovstest/tcp.py            |  4 ++--
+ python/ovstest/util.py           |  4 +---
+ python/ovstest/vswitch.py        |  5 +++-
+ utilities/bugtool/ovs-bugtool.in | 22 +++++++++---------
+ utilities/ovs-check-dead-ifs.in  |  8 ++++---
+ utilities/ovs-dpctl-top.in       | 18 ++++++++-------
+ utilities/ovs-l3ping.in          | 12 ++++++----
+ utilities/ovs-parse-backtrace.in | 14 +++++++-----
+ utilities/ovs-tcpdump.in         |  2 ++
+ utilities/ovs-tcpundump.in       |  2 ++
+ utilities/ovs-test.in            | 39 +++++++++++++++++---------------
+ utilities/ovs-vlan-test.in       | 25 +++++++++++---------
+ 14 files changed, 102 insertions(+), 89 deletions(-)
+
+Index: openvswitch/ovn/utilities/ovn-detrace.in
+===================================================================
+--- openvswitch.orig/ovn/utilities/ovn-detrace.in
++++ openvswitch/ovn/utilities/ovn-detrace.in
+@@ -14,6 +14,8 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++from __future__ import print_function
++
+ import getopt
+ import os
+ import re
+@@ -37,7 +39,7 @@ argv0 = sys.argv[0]
+ 
+ 
+ def usage():
+-    print """\
++    print("""\
+ %(argv0)s:
+ usage: %(argv0)s < FILE
+ where FILE is output from ovs-appctl ofproto/trace.
+@@ -47,7 +49,7 @@ The following options are also available
+   -V, --version               display version information
+   --ovnsb=DATABASE            use DATABASE as southbound DB
+   --ovnnb=DATABASE            use DATABASE as northbound DB\
+-""" % {'argv0': argv0}
++""" % {'argv0': argv0})
+     sys.exit(0)
+ 
+ 
+@@ -107,17 +109,17 @@ def print_lflow(lflow, prefix):
+     ldp_uuid = lflow.logical_datapath.uuid
+     ldp_name = str(lflow.logical_datapath.external_ids.get('name'))
+ 
+-    print '%sLogical datapath: "%s" (%s) [%s]' % (prefix,
++    print('%sLogical datapath: "%s" (%s) [%s]' % (prefix,
+                                                   ldp_name,
+                                                   ldp_uuid,
+-                                                  lflow.pipeline)
+-    print "%sLogical flow: table=%s (%s), priority=%s, " \
++                                                  lflow.pipeline))
++    print("%sLogical flow: table=%s (%s), priority=%s, " \
+           "match=(%s), actions=(%s)" % (prefix,
+                                         lflow.table_id,
+                                         lflow.external_ids.get('stage-name'),
+                                         lflow.priority,
+                                         str(lflow.match).strip('"'),
+-                                        str(lflow.actions).strip('"'))
++                                        str(lflow.actions).strip('"')))
+ 
+ 
+ def print_lflow_nb_hint(lflow, prefix, ovnnb_db):
+@@ -138,7 +140,7 @@ def print_lflow_nb_hint(lflow, prefix, o
+                                      acl.action)
+         if acl.log:
+             output += ' (log)'
+-        print output
++        print(output)
+ 
+ 
+ def main():
+@@ -156,7 +158,7 @@ def main():
+         if key in ['-h', '--help']:
+             usage()
+         elif key in ['-V', '--version']:
+-            print "%s (Open vSwitch) @VERSION@" % argv0
++            print("%s (Open vSwitch) @VERSION@" % argv0)
+         elif key in ['--ovnsb']:
+             ovnsb_db = value
+         elif key in ['--ovnnb']:
+@@ -196,7 +198,7 @@ def main():
+                 print_lflow_nb_hint(lflow, "    * ", ovsdb_ovnnb)
+                 cookie = None
+ 
+-        print line.strip()
++        print(line.strip())
+         if line == "":
+             break
+ 
+Index: openvswitch/python/ovstest/rpcserver.py
+===================================================================
+--- openvswitch.orig/python/ovstest/rpcserver.py
++++ openvswitch/python/ovstest/rpcserver.py
+@@ -16,26 +16,18 @@
+ rpcserver is an XML RPC server that allows RPC client to initiate tests
+ """
+ 
+-from __future__ import print_function
++from __future__ import print_function, absolute_import
+ 
+ import sys
+ 
+-import exceptions
+-
+ import six.moves.xmlrpc_client
+ 
+-import tcp
+-
+ from twisted.internet import reactor
+ from twisted.internet.error import CannotListenError
+ from twisted.web import server
+ from twisted.web import xmlrpc
+ 
+-import udp
+-
+-import util
+-
+-import vswitch
++from . import tcp, udp, util, vswitch
+ 
+ 
+ class TestArena(xmlrpc.XMLRPC):
+@@ -213,7 +205,7 @@ class TestArena(xmlrpc.XMLRPC):
+             (_, port) = self.__get_handle_resources(handle)
+             port.loseConnection()
+             self.__delete_handle(handle)
+-        except exceptions.KeyError:
++        except KeyError:
+             return -1
+         return 0
+ 
+@@ -225,7 +217,7 @@ class TestArena(xmlrpc.XMLRPC):
+             (_, connector) = self.__get_handle_resources(handle)
+             connector.disconnect()
+             self.__delete_handle(handle)
+-        except exceptions.KeyError:
++        except KeyError:
+             return -1
+         return 0
+ 
+Index: openvswitch/python/ovstest/tcp.py
+===================================================================
+--- openvswitch.orig/python/ovstest/tcp.py
++++ openvswitch/python/ovstest/tcp.py
+@@ -21,7 +21,7 @@ import time
+ from twisted.internet import interfaces
+ from twisted.internet.protocol import ClientFactory, Factory, Protocol
+ 
+-from zope.interface import implements
++from zope.interface.declarations import implementer
+ 
+ 
+ class TcpListenerConnection(Protocol):
+@@ -55,8 +55,8 @@ class TcpListenerFactory(Factory):
+         return str(self.stats)
+ 
+ 
++@implementer(interfaces.IPushProducer)
+ class Producer(object):
+-    implements(interfaces.IPushProducer)
+     """
+     This producer class generates infinite byte stream for a specified time
+     duration
+Index: openvswitch/python/ovstest/util.py
+===================================================================
+--- openvswitch.orig/python/ovstest/util.py
++++ openvswitch/python/ovstest/util.py
+@@ -26,8 +26,6 @@ import socket
+ import struct
+ import subprocess
+ 
+-import exceptions
+-
+ import six.moves.xmlrpc_client
+ from six.moves import range
+ 
+@@ -89,7 +87,7 @@ def start_process(args):
+                              stderr=subprocess.PIPE)
+         out, err = p.communicate()
+         return (p.returncode, out, err)
+-    except exceptions.OSError:
++    except OSError:
+         return (-1, None, None)
+ 
+ 
+Index: openvswitch/python/ovstest/vswitch.py
+===================================================================
+--- openvswitch.orig/python/ovstest/vswitch.py
++++ openvswitch/python/ovstest/vswitch.py
+@@ -15,7 +15,10 @@
+ """
+ vswitch module allows its callers to interact with OVS DB.
+ """
+-import util
++
++from __future__ import absolute_import
++
++from . import util
+ 
+ 
+ def ovs_vsctl_add_bridge(bridge):
+Index: openvswitch/utilities/bugtool/ovs-bugtool.in
+===================================================================
+--- openvswitch.orig/utilities/bugtool/ovs-bugtool.in
++++ openvswitch/utilities/bugtool/ovs-bugtool.in
+@@ -35,8 +35,6 @@
+ 
+ from __future__ import print_function
+ 
+-import StringIO
+-import commands
+ import fcntl
+ import getopt
+ import hashlib
+@@ -50,11 +48,13 @@ import warnings
+ import zipfile
+ from select import select
+ from signal import SIGTERM
+-from subprocess import PIPE, Popen
++from subprocess import PIPE, Popen, check_output
+ 
+ from xml.dom.minidom import getDOMImplementation, parse
+ 
+ from six.moves import input
++from six.moves import StringIO
++
+ warnings.filterwarnings(action="ignore", category=DeprecationWarning)
+ 
+ OS_RELEASE = platform.release()
+@@ -785,7 +785,7 @@ def dump_scsi_hosts(cap):
+ 
+ 
+ def module_info(cap):
+-    output = StringIO.StringIO()
++    output = StringIO()
+     modules = open(PROC_MODULES, 'r')
+     procs = []
+ 
+@@ -809,7 +809,7 @@ def multipathd_topology(cap):
+ 
+ 
+ def dp_list():
+-    output = StringIO.StringIO()
++    output = StringIO()
+     procs = [ProcOutput([OVS_DPCTL, 'dump-dps'],
+              caps[CAP_NETWORK_STATUS][MAX_TIME], output)]
+ 
+@@ -831,7 +831,7 @@ def collect_ovsdb():
+             if os.path.isfile(OPENVSWITCH_COMPACT_DB):
+                 os.unlink(OPENVSWITCH_COMPACT_DB)
+ 
+-            output = StringIO.StringIO()
++            output = StringIO()
+             max_time = 5
+             procs = [ProcOutput(['ovsdb-tool', 'compact',
+                                 OPENVSWITCH_CONF_DB, OPENVSWITCH_COMPACT_DB],
+@@ -874,7 +874,7 @@ def fd_usage(cap):
+ 
+ 
+ def dump_rdac_groups(cap):
+-    output = StringIO.StringIO()
++    output = StringIO()
+     procs = [ProcOutput([MPPUTIL, '-a'], caps[cap][MAX_TIME], output)]
+ 
+     run_procs([procs])
+@@ -1098,7 +1098,7 @@ def make_inventory(inventory, subdir):
+     s.setAttribute('date', time.strftime('%c'))
+     s.setAttribute('hostname', platform.node())
+     s.setAttribute('uname', ' '.join(platform.uname()))
+-    s.setAttribute('uptime', commands.getoutput(UPTIME))
++    s.setAttribute('uptime', check_output([UPTIME]))
+     document.getElementsByTagName(INVENTORY_XML_ROOT)[0].appendChild(s)
+ 
+     map(lambda k_v: inventory_entry(document, subdir, k_v[0], k_v[1]),
+@@ -1394,13 +1394,13 @@ def get_free_disk_space(path):
+     return s.f_frsize * s.f_bfree
+ 
+ 
+-class StringIOmtime(StringIO.StringIO):
++class StringIOmtime(StringIO):
+     def __init__(self, buf=''):
+-        StringIO.StringIO.__init__(self, buf)
++        StringIO.__init__(self, buf)
+         self.mtime = time.time()
+ 
+     def write(self, s):
+-        StringIO.StringIO.write(self, s)
++        StringIO.write(self, s)
+         self.mtime = time.time()
+ 
+ 
+Index: openvswitch/utilities/ovs-check-dead-ifs.in
+===================================================================
+--- openvswitch.orig/utilities/ovs-check-dead-ifs.in
++++ openvswitch/utilities/ovs-check-dead-ifs.in
+@@ -1,5 +1,7 @@
+ #! @PYTHON@
+ 
++from __future__ import print_function
++
+ import os
+ import re
+ import stat
+@@ -37,7 +39,7 @@ for ifname in os.listdir("/sys/class/net
+     except IOError:
+         pass
+     except ValueError:
+-        print "%s: unexpected format\n" % fn
++        print("%s: unexpected format\n" % fn)
+ 
+ # Get inodes for all packet sockets whose ifindexes don't exist.
+ invalid_inodes = set()
+@@ -95,8 +97,8 @@ for pid in os.listdir("/proc"):
+             bad_pids.add(pid)
+ 
+ if bad_pids:
+-    print """
++    print("""
+ The following processes are listening for packets to arrive on network devices
+-that no longer exist. You may want to restart them."""
++that no longer exist. You may want to restart them.""")
+     sys.stdout.flush()
+     os.execvp("ps", ["ps"] + ["%s" % pid for pid in bad_pids])
+Index: openvswitch/utilities/ovs-dpctl-top.in
+===================================================================
+--- openvswitch.orig/utilities/ovs-dpctl-top.in
++++ openvswitch/utilities/ovs-dpctl-top.in
+@@ -131,6 +131,8 @@ $ ovs-dpctl-top --script --flow-file dum
+ # pylint: disable-msg=R0913
+ # pylint: disable-msg=R0914
+ 
++from __future__ import print_function
++
+ import sys
+ import os
+ try:
+@@ -418,7 +420,7 @@ def flow_line_iter(line):
+             rc.append(element)
+             element = ""
+         else:
+-            element += ch
++            element += str(ch)
+ 
+     if (paren_count):
+         raise ValueError(line)
+@@ -467,7 +469,7 @@ def flow_line_split(line):
+ 
+     """
+ 
+-    results = re.split(', ', line)
++    results = re.split(b', ', line)
+ 
+     (field, stats, action) = (results[0], results[1:-1], results[-1])
+ 
+@@ -591,7 +593,7 @@ def flows_read(ihdl, flow_db):
+ 
+         try:
+             flow_db.flow_line_add(line)
+-        except ValueError, arg:
++        except ValueError as arg:
+             logging.error(arg)
+ 
+     return flow_db
+@@ -957,7 +959,7 @@ class FlowDB:
+         change order of fields of the same flow.
+         """
+ 
+-        line = line.rstrip("\n")
++        line = line.rstrip(b"\n")
+         (fields, stats, _) = flow_line_split(line)
+ 
+         try:
+@@ -987,7 +989,7 @@ class FlowDB:
+ 
+             self.flow_event(fields_dict, stats_old_dict, stats_dict)
+ 
+-        except ValueError, arg:
++        except ValueError as arg:
+             logging.error(arg)
+             self._error_count += 1
+             raise
+@@ -1191,7 +1193,7 @@ def flows_top(args):
+                         flows_read(ihdl, flow_db)
+                     finally:
+                         ihdl.close()
+-                except OSError, arg:
++                except OSError as arg:
+                     logging.critical(arg)
+                     break
+ 
+@@ -1219,7 +1221,7 @@ def flows_top(args):
+ 
+     # repeat output
+     for (count, line) in lines:
+-        print line
++        print(line)
+ 
+ 
+ def flows_script(args):
+@@ -1248,7 +1250,7 @@ def flows_script(args):
+     render = Render(console_width, Render.FIELD_SELECT_SCRIPT)
+ 
+     for line in render.format(flow_db):
+-        print line
++        print(line)
+ 
+ 
+ def main():
+Index: openvswitch/utilities/ovs-l3ping.in
+===================================================================
+--- openvswitch.orig/utilities/ovs-l3ping.in
++++ openvswitch/utilities/ovs-l3ping.in
+@@ -18,8 +18,10 @@ opening holes in the firewall for the XM
+ achieved by tunneling the control connection inside the tunnel itself.
+ """
+ 
++from __future__ import print_function
++
+ import socket
+-import xmlrpclib
++from six.moves import xmlrpc_client as xmlrpclib
+ 
+ import ovstest.args as args
+ import ovstest.tests as tests
+@@ -64,13 +66,13 @@ if __name__ == '__main__':
+             ps = get_packet_sizes(me, he, args.client[0])
+             tests.do_direct_tests(me, he, bandwidth, interval, ps)
+     except KeyboardInterrupt:
+-        print "Terminating"
++        print("Terminating")
+     except xmlrpclib.Fault:
+-        print "Couldn't contact peer"
++        print("Couldn't contact peer")
+     except socket.error:
+-        print "Couldn't contact peer"
++        print("Couldn't contact peer")
+     except xmlrpclib.ProtocolError:
+-        print "XMLRPC control channel was abruptly terminated"
++        print("XMLRPC control channel was abruptly terminated")
+     finally:
+         if local_server is not None:
+             local_server.terminate()
+Index: openvswitch/utilities/ovs-parse-backtrace.in
+===================================================================
+--- openvswitch.orig/utilities/ovs-parse-backtrace.in
++++ openvswitch/utilities/ovs-parse-backtrace.in
+@@ -14,6 +14,8 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++from __future__ import print_function
++
+ import optparse
+ import os
+ import re
+@@ -70,7 +72,7 @@ result.  Expected usage is for ovs-appct
+         if os.path.exists(debug):
+             binary = debug
+ 
+-    print "Binary: %s\n" % binary
++    print("Binary: %s\n" % binary)
+ 
+     stdin = sys.stdin.read()
+ 
+@@ -88,15 +90,15 @@ result.  Expected usage is for ovs-appct
+     for lines, count in traces:
+         longest = max(len(l) for l in lines)
+ 
+-        print "Backtrace Count: %d" % count
++        print("Backtrace Count: %d" % count)
+         for line in lines:
+             match = re.search(r'\[(0x.*)]', line)
+             if match:
+-                print "%s %s" % (line.ljust(longest),
+-                                 addr2line(binary, match.group(1)))
++                print("%s %s" % (line.ljust(longest),
++                                 addr2line(binary, match.group(1))))
+             else:
+-                print line
+-        print
++                print(line)
++        print()
+ 
+ 
+ if __name__ == "__main__":
+Index: openvswitch/utilities/ovs-tcpdump.in
+===================================================================
+--- openvswitch.orig/utilities/ovs-tcpdump.in
++++ openvswitch/utilities/ovs-tcpdump.in
+@@ -14,6 +14,8 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++from __future__ import print_function
++
+ import fcntl
+ 
+ import os
+Index: openvswitch/utilities/ovs-tcpundump.in
+===================================================================
+--- openvswitch.orig/utilities/ovs-tcpundump.in
++++ openvswitch/utilities/ovs-tcpundump.in
+@@ -14,6 +14,8 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++from __future__ import print_function
++
+ import getopt
+ import re
+ import sys
+Index: openvswitch/utilities/ovs-test.in
+===================================================================
+--- openvswitch.orig/utilities/ovs-test.in
++++ openvswitch/utilities/ovs-test.in
+@@ -16,6 +16,8 @@
+ ovs test utility that allows to do tests between remote hosts
+ """
+ 
++from __future__ import print_function
++
+ import fcntl
+ import math
+ import os
+@@ -25,7 +27,6 @@ import socket
+ import subprocess
+ import sys
+ import time
+-import xmlrpclib
+ 
+ import argparse
+ import twisted
+@@ -35,6 +36,8 @@ import ovstest.rpcserver as rpcserver
+ import ovstest.tests as tests
+ import ovstest.util as util
+ 
++from six.moves import xmlrpc_client as xmlrpclib
++
+ DEFAULT_TEST_BRIDGE = "ovstestbr0"
+ DEFAULT_TEST_PORT = "ovstestport0"
+ DEFAULT_TEST_TUN = "ovstestport1"
+@@ -42,7 +45,7 @@ DEFAULT_TEST_TUN = "ovstestport1"
+ 
+ def collect_information(node):
+     """Print information about hosts that will do testing"""
+-    print "Node %s:%u " % (node[0], node[1])
++    print("Node %s:%u " % (node[0], node[1]))
+     server = util.rpc_client(node[0], node[1])
+     interface_name = server.get_interface(node[0])
+     phys_iface = None
+@@ -50,8 +53,8 @@ def collect_information(node):
+     mtu = 1500
+ 
+     if not interface_name:
+-        print ("Could not find interface that has %s IP address."
+-               "Make sure that you specified correct Outer IP." % (node[0]))
++        print("Could not find interface that has %s IP address."
++              "Make sure that you specified correct Outer IP." % (node[0]))
+     else:
+         if server.is_ovs_bridge(interface_name):
+             phys_iface = server.get_iface_from_bridge(interface_name)
+@@ -62,18 +65,18 @@ def collect_information(node):
+         driver = server.get_driver(phys_iface)
+         mtu = server.get_interface_mtu(phys_iface)
+ 
+-        print "Will be using %s (%s) with MTU %u" % (phys_iface, node[0],
+-                                                    mtu)
++        print("Will be using %s (%s) with MTU %u" % (phys_iface, node[0],
++                                                     mtu))
+         if not driver:
+-            print "Unable to get driver information from ethtool."
++            print("Unable to get driver information from ethtool.")
+         else:
+-            print "On this host %s has %s." % (phys_iface, driver)
++            print("On this host %s has %s." % (phys_iface, driver))
+ 
+     if not uname:
+-        print "Unable to retrieve kernel information. Is this Linux?"
++        print("Unable to retrieve kernel information. Is this Linux?")
+     else:
+-        print "Running kernel %s." % uname
+-    print "\n"
++        print("Running kernel %s." % uname)
++    print()
+ 
+     return mtu
+ 
+@@ -113,29 +116,29 @@ if __name__ == '__main__':
+             tunnel_modes = ovs_args.tunnelModes
+ 
+             if direct is not None:
+-                print "Performing direct tests"
++                print("Performing direct tests")
+                 tests.do_direct_tests(node2, node1, bandwidth, interval, ps)
+ 
+             if vlan_tag is not None:
+-                print "Performing VLAN tests"
++                print("Performing VLAN tests")
+                 tests.do_vlan_tests(node2, node1, bandwidth, interval, ps,
+                                     vlan_tag)
+ 
+             for tmode in tunnel_modes:
+-                print "Performing", tmode, "tests"
++                print("Performing", tmode, "tests")
+                 tests.do_l3_tests(node2, node1, bandwidth, interval, ps,
+                                   tmode)
+ 
+     except KeyboardInterrupt:
+         pass
+     except xmlrpclib.Fault:
+-        print "Couldn't establish XMLRPC control channel"
++        print("Couldn't establish XMLRPC control channel")
+     except socket.error:
+-        print "Couldn't establish XMLRPC control channel"
++        print("Couldn't establish XMLRPC control channel")
+     except xmlrpclib.ProtocolError:
+-        print "XMLRPC control channel was abruptly terminated"
++        print("XMLRPC control channel was abruptly terminated")
+     except twisted.internet.error.CannotListenError:
+-        print "Couldn't start XMLRPC server on port %u" % ovs_args.port
++        print("Couldn't start XMLRPC server on port %u" % ovs_args.port)
+     finally:
+         if local_server is not None:
+             local_server.terminate()
+Index: openvswitch/utilities/ovs-vlan-test.in
+===================================================================
+--- openvswitch.orig/utilities/ovs-vlan-test.in
++++ openvswitch/utilities/ovs-vlan-test.in
+@@ -14,9 +14,9 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
+-import BaseHTTPServer
++from __future__ import print_function
++
+ import getopt
+-import httplib
+ import os
+ import threading
+ import time
+@@ -24,6 +24,9 @@ import signal #Causes keyboard interrupt
+ import socket
+ import sys
+ 
++from six.moves import BaseHTTPServer
++from six.moves import http_client as httplib
++
+ print_safe_lock = threading.Lock()
+ def print_safe(s):
+     print_safe_lock.acquire()
+@@ -84,7 +87,7 @@ class UDPReceiver:
+ 
+         try:
+             sock.bind((self.vlan_ip, self.vlan_port))
+-        except socket.error, e:
++        except socket.error as e:
+             print_safe('Failed to bind to %s:%d with error: %s'
+                     % (self.vlan_ip, self.vlan_port, e))
+             os._exit(1) #sys.exit only exits the current thread.
+@@ -95,7 +98,7 @@ class UDPReceiver:
+                 data, _ = sock.recvfrom(4096)
+             except socket.timeout:
+                 continue
+-            except socket.error, e:
++            except socket.error as e:
+                 print_safe('Failed to receive from %s:%d with error: %s'
+                     % (self.vlan_ip, self.vlan_port, e))
+                 os._exit(1)
+@@ -180,7 +183,7 @@ class VlanServer:
+             for _ in range(send_time * 2):
+                 try:
+                     send_packet(test_id, size, ip, port)
+-                except socket.error, e:
++                except socket.error as e:
+                     self.set_result(test_id, 'Failure: ' + str(e))
+                     return
+                 time.sleep(.5)
+@@ -196,7 +199,7 @@ class VlanServer:
+         try:
+             BaseHTTPServer.HTTPServer((self.server_ip, self.server_port),
+                     VlanServerHandler).serve_forever()
+-        except socket.error, e:
++        except socket.error as e:
+             print_safe('Failed to start control server: %s' % e)
+             self.udp_recv.stop()
+ 
+@@ -256,7 +259,7 @@ class VlanClient:
+         try:
+             conn = self.request('/start/recv')
+             data = conn.getresponse().read()
+-        except (socket.error, httplib.HTTPException), e:
++        except (socket.error, httplib.HTTPException) as e:
+             error_msg(e)
+             return False
+ 
+@@ -277,7 +280,7 @@ class VlanClient:
+                 send_packet(test_id, size, ip, port)
+                 resp = self.request('/result/%d' % test_id).getresponse()
+                 data = resp.read()
+-            except (socket.error, httplib.HTTPException), e:
++            except (socket.error, httplib.HTTPException) as e:
+                 error_msg(e)
+                 return False
+ 
+@@ -302,7 +305,7 @@ class VlanClient:
+         try:
+             conn    = self.request(resource)
+             test_id = conn.getresponse().read()
+-        except (socket.error, httplib.HTTPException), e:
++        except (socket.error, httplib.HTTPException) as e:
+             error_msg(e)
+             return False
+ 
+@@ -335,7 +338,7 @@ class VlanClient:
+         try:
+             resp = self.request('/ping').getresponse()
+             data = resp.read()
+-        except (socket.error, httplib.HTTPException), e:
++        except (socket.error, httplib.HTTPException) as e:
+             error_msg(e)
+             return False
+ 
+@@ -383,7 +386,7 @@ def main():
+     try:
+         options, args = getopt.gnu_getopt(sys.argv[1:], 'hVs',
+                                           ['help', 'version', 'server'])
+-    except getopt.GetoptError, geo:
++    except getopt.GetoptError as geo:
+         print_safe('%s: %s\n' % (sys.argv[0], geo.msg))
+         return 1
+ 
+Index: openvswitch/Makefile.am
+===================================================================
+--- openvswitch.orig/Makefile.am
++++ openvswitch/Makefile.am
+@@ -53,6 +53,15 @@ psep=";"
+ else
+ psep=":"
+ endif
++
++# If Python 3 is present, default python tooling
++# to use PYTHON3 for execution.
++if HAVE_PYTHON3
++PYTHON_EXEC = $(PYTHON3)
++else
++PYTHON_EXEC = $(PYTHON)
++endif
++
+ # PYTHONDONTWRITEBYTECODE=yes keeps Python from creating .pyc and .pyo
+ # files.  Creating .py[co] works OK for any given version of Open
+ # vSwitch, but it causes trouble if you switch from a version with
+@@ -60,7 +69,7 @@ endif
+ # foo/__init__.pyc will cause Python to ignore foo.py.
+ run_python = \
+ 	PYTHONPATH=$(top_srcdir)/python$(psep)$$PYTHONPATH \
+-	PYTHONDONTWRITEBYTECODE=yes $(PYTHON)
++	PYTHONDONTWRITEBYTECODE=yes $(PYTHON_EXEC)
+ 
+ ALL_LOCAL =
+ BUILT_SOURCES =
+@@ -147,13 +156,13 @@ ro_shell = printf '\043 Generated automa
+ 
+ SUFFIXES += .in
+ .in:
+-	$(AM_V_GEN)PYTHONPATH=$$PYTHONPATH$(psep)$(srcdir)/python $(PYTHON) $(srcdir)/build-aux/soexpand.py -I$(srcdir) < $< | \
+-	  $(PYTHON) $(srcdir)/build-aux/dpdkstrip.py $(DPDKSTRIP_FLAGS) | \
++	$(AM_V_GEN)PYTHONPATH=$$PYTHONPATH$(psep)$(srcdir)/python $(PYTHON_EXEC) $(srcdir)/build-aux/soexpand.py -I$(srcdir) < $< | \
++	  $(PYTHON_EXEC) $(srcdir)/build-aux/dpdkstrip.py $(DPDKSTRIP_FLAGS) | \
+ 	  sed \
+ 	    -e 's,[@]PKIDIR[@],$(PKIDIR),g' \
+ 	    -e 's,[@]LOGDIR[@],$(LOGDIR),g' \
+ 	    -e 's,[@]DBDIR[@],$(DBDIR),g' \
+-	    -e 's,[@]PYTHON[@],$(PYTHON),g' \
++	    -e 's,[@]PYTHON[@],$(PYTHON_EXEC),g' \
+ 	    -e 's,[@]RUNDIR[@],$(RUNDIR),g' \
+ 	    -e 's,[@]VERSION[@],$(VERSION),g' \
+ 	    -e 's,[@]localstatedir[@],$(localstatedir),g' \
+@@ -177,7 +186,7 @@ SUFFIXES += .xml
+ 	  PKIDIR='$(PKIDIR)' \
+ 	  LOGDIR='$(LOGDIR)' \
+ 	  DBDIR='$(DBDIR)' \
+-	  PYTHON='$(PYTHON)' \
++	  PYTHON='$(PYTHON_EXEC)' \
+ 	  RUNDIR='$(RUNDIR)' \
+ 	  VERSION='$(VERSION)' \
+ 	  localstatedir='$(localstatedir)' \
+@@ -414,7 +423,7 @@ CLEANFILES += flake8-check
+ 
+ include $(srcdir)/manpages.mk
+ $(srcdir)/manpages.mk: $(MAN_ROOTS) build-aux/sodepends.py python/build/soutil.py
+-	@PYTHONPATH=$$PYTHONPATH$(psep)$(srcdir)/python $(PYTHON) $(srcdir)/build-aux/sodepends.py -I. -I$(srcdir) $(MAN_ROOTS) >$(@F).tmp
++	@PYTHONPATH=$$PYTHONPATH$(psep)$(srcdir)/python $(PYTHON_EXEC) $(srcdir)/build-aux/sodepends.py -I. -I$(srcdir) $(MAN_ROOTS) >$(@F).tmp
+ 	@if cmp -s $(@F).tmp $@; then \
+ 	  touch $@; \
+ 	  rm -f $(@F).tmp; \

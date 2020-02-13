@@ -1,0 +1,2 @@
+debian/ifupdown.sh usr/share/openvswitch/scripts
+usr/share/openvswitch/vswitch.ovsschema

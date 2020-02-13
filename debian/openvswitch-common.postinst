@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+if [ "${1}" = "configure" ] ; then
+	update-alternatives --install /usr/sbin/ovs-vswitchd ovs-vswitchd /usr/lib/openvswitch-common/ovs-vswitchd 100
+fi
+
+#DEBHELPER#
+
+exit 0

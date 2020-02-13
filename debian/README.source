@@ -1,0 +1,5 @@
+This package is marked +dfsg1, because we're removing the upstream debian
+folder which is annoying when working with git-buildpackage. However, there's
+nothing non-free in openvswitch.
+
+ -- Thomas Goirand <zigo@debian.org>  Fri, 20 Oct 2017 23:10:59 +0200

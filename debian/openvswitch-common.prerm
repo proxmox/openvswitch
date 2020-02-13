@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "remove" ] ; then
+	update-alternatives --remove ovs-vswitchd /usr/lib/openvswitch-common/ovs-vswitchd
+fi
+
+#DEBHELPER#
+
+exit 0

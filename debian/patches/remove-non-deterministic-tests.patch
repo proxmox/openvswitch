@@ -1,0 +1,46 @@
+Description: Remove non-deterministic patches
+ These tests are sometimes failing.
+Author: Thomas Goirand <zigo@debian.org>
+Bug-Debian: https://bugs.debian.org/910297
+Forwarded: no
+Last-Update: 2018-12-14
+
+--- openvswitch-2.10.0+2018.08.28+git.8ca7c82b7d+ds1.orig/tests/ovsdb-cluster.at
++++ openvswitch-2.10.0+2018.08.28+git.8ca7c82b7d+ds1/tests/ovsdb-cluster.at
+@@ -246,36 +246,3 @@ AT_SETUP([OVSDB 5-server torture test -
+ AT_KEYWORDS([ovsdb server positive unix cluster cluster5])
+ ovsdb_torture_test 5 5 kill
+ AT_CLEANUP
+-
+-AT_SETUP([OVSDB 3-server torture test - remove/re-add leader])
+-AT_KEYWORDS([ovsdb server positive unix cluster cluster3])
+-ovsdb_torture_test 3 1 remove
+-AT_CLEANUP
+-AT_SETUP([OVSDB 3-server torture test - remove/re-add follower 1])
+-AT_KEYWORDS([ovsdb server positive unix cluster cluster3])
+-ovsdb_torture_test 3 2 remove
+-AT_CLEANUP
+-AT_SETUP([OVSDB 3-server torture test - remove/re-add follower 2])
+-AT_KEYWORDS([ovsdb server positive unix cluster cluster3])
+-ovsdb_torture_test 3 3 remove
+-AT_CLEANUP
+-AT_SETUP([OVSDB 5-server torture test - remove/re-add leader])
+-AT_KEYWORDS([ovsdb server positive unix cluster cluster5])
+-ovsdb_torture_test 5 1 remove
+-AT_CLEANUP
+-AT_SETUP([OVSDB 5-server torture test - remove/re-add follower 1])
+-AT_KEYWORDS([ovsdb server positive unix cluster cluster5])
+-ovsdb_torture_test 5 2 remove
+-AT_CLEANUP
+-AT_SETUP([OVSDB 5-server torture test - remove/re-add follower 2])
+-AT_KEYWORDS([ovsdb server positive unix cluster cluster5])
+-ovsdb_torture_test 5 3 remove
+-AT_CLEANUP
+-AT_SETUP([OVSDB 5-server torture test - remove/re-add follower 3])
+-AT_KEYWORDS([ovsdb server positive unix cluster cluster5])
+-ovsdb_torture_test 5 4 remove
+-AT_CLEANUP
+-AT_SETUP([OVSDB 5-server torture test - remove/re-add follower 4])
+-AT_KEYWORDS([ovsdb server positive unix cluster cluster5])
+-ovsdb_torture_test 5 5 remove
+-AT_CLEANUP

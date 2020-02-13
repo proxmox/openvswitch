@@ -1,0 +1,14 @@
+fix-ovs-monitor-ipsec.patch
+remove-include-debian-automake.mk.patch
+remove-tests-broken-in-mips64el-and-mipsel.patch
+remove-bfd-decay-tests.patch
+disable-failed-tests.patch
+py3-compat.patch
+use-python3-m-sphinx-to-build-doc.patch
+removed-tests-which-are-failing-in-mips-and-armel.patch
+disable-even-more-tests.patch
+blacklist-ofproto-async-msg-ctrl-of1.3-because-of-mips.patch
+remove-yet-another-mips-failing-test.patch
+remove-non-deterministic-tests.patch
+0001-acinclude-Also-use-LIBS-from-dpkg-pkg-config.patch
+disable-failing-ovn-tests.patch

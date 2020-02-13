@@ -1,0 +1,17 @@
+Description: Remove debian/automake.mk
+Author: Thomas Goirand <zigo@debian.org>
+Forwarded: not-needed
+Last-Update: 2017-10-20
+
+Index: openvswitch/Makefile.am
+===================================================================
+--- openvswitch.orig/Makefile.am
++++ openvswitch/Makefile.am
+@@ -483,7 +483,6 @@ include utilities/automake.mk
+ include tests/automake.mk
+ include include/automake.mk
+ include third-party/automake.mk
+-include debian/automake.mk
+ include ipsec/automake.mk
+ include vswitchd/automake.mk
+ include ovsdb/automake.mk
