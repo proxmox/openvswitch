@@ -83,6 +83,9 @@ if [ "${MODE}" = "start" ]; then
                 for slave in ${IF_OVS_BONDS}
                 do
                     if_up "${slave}"
+                    if [ -n "${IF_OVS_MTU}" ] ; then
+                        ovs-vsctl set Interface "${slave}" mtu_request=${IF_OVS_MTU}
+                    fi
                 done
                 ;;
         OVSPatchPort)
