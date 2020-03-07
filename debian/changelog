@@ -2,7 +2,7 @@ openvswitch (2.12.0-1) buster; urgency=low
 
   * update to 2.12.0
 
- -- Proxmox Support Team <support@proxmox.com>  Fri, 12 Feb 2020 22:00:00 +0200
+ -- Proxmox Support Team <support@proxmox.com>  Sat, 07 Mar 2020 15:41:16 +0100
 
 openvswitch (2.7.0-3) stretch; urgency=low
 
